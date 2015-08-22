@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% block content %}
+{% if msg == 1 %}
+<p class="msg">The invoice has been recorded!</p>
+{% endif %}
+<h3>Add a Invoice</h3>
+<p>Record a invoice for matching service.</p>
+<form method="POST">
+  <div class="form-group {% if error_code[1] %}has-error{% endif %}">
+    <label for="year">Year</label>
+    <input type="text" class="form-control" id="year" name="year" value="{{ year }}" />
+  </div>
+  <div class="form-group {% if error_code[2] %}has-error{% endif %}">
+    <label for="month">Month</label>
+    <select class="form-control" id="month" name="month">
+      <option value="1" {% if month == 1 %}selected{% endif %}>1~2</option>
+      <option value="2" {% if month == 2 %}selected{% endif %}>3~4</option>
+      <option value="3" {% if month == 3 %}selected{% endif %}>5~6</option>
+      <option value="4" {% if month == 4 %}selected{% endif %}>7~8</option>
+      <option value="5" {% if month == 5 %}selected{% endif %}>9~10</option>
+      <option value="6" {% if month == 6 %}selected{% endif %}>11~12</option>
+    </select>
+  </div>
+  <div class="form-group {% if error_code[4] %}has-error{% endif %}">
+    <label for="number">Number</label>
+    <input type="text" class="form-control" id="number" name="number" value="{{number}}"/>
+  </div>
+  <div class="form-group">
+    <label for="note">Note</label>
+    <textarea class="form-control" id="note" name="note">{{note}}</textarea>
+  </div>
+  <button type="submit" class="btn btn-default">Submit</button>
+</form>
+{% endblock %}

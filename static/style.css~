@@ -1,0 +1,30 @@
+#header {
+    background-color: #7cbc3b;
+}
+
+#icon {
+    position: relative;
+    display: inline-block;
+    width: 2.5em;
+    height: 2.5em;
+}
+
+#icon i {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+}
+
+#nav {
+    display: inline-block;
+}
+
+#nav ul {
+    list-style-type: none;
+}
+
+#nav ul li {
+    display: inline-block;
+    border-left: solid 2px;
+    padding: 8px;
+}
