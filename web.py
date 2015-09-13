@@ -9,8 +9,15 @@ NOT_VALID_NUMBER = 4
 
 @app.route('/')
 def index():
-    # TODO display matched invoices
-    return render_template('index.html')
+    app = db.App.get_instance()
+    view_data = {
+        'matched_invoices': app.get_matched_invoices(),
+        'no_matched_invoices': app.get_no_matched_invoices(),
+        'non_matched_invoices': app.get_non_matched_invoices()
+        }
+    # display matched, no-matched and non-matched invoices
+    return render_template('index.html',
+                           **view_data)
 
 @app.route('/invoices')
 def invoices():

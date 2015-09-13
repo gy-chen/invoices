@@ -1,4 +1,57 @@
 {% extends "base.html" %}
 {% block content %}
-<h2>Hello World</h2>
+<h2>Matched Invoices</h2>
+{% if matched_invoices.count() %}
+<table class="table table-striped table-hover">
+  <thead>
+    <tr>
+      <th>Id</th>
+      <th>Year</th>
+      <th>Month</th>
+      <th>Number</th>
+      <th>Note</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for invoice in matched_invoices %}
+    <tr>
+      <td>{{ invoice.id }}</td>
+      <td>{{ invoice.year }}</td>
+      <td>{{ invoice.month * 2 - 1}} ~ {{ invoice.month * 2 }}</td>
+      <td>{{ invoice.number }}</td>
+      <td>{{ invoice.note }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p>No luck today.</p>
+{% endif %}
+<h2>Keep These Invoices and Wait</h2>
+{% if non_matched_invoices.count() %}
+<table class="table table-striped table-hover">
+  <thead>
+    <tr>
+      <th>Id</th>
+      <th>Year</th>
+      <th>Month</th>
+      <th>Number</th>
+      <th>Note</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for invoice in non_matched_invoices %}
+    <tr>
+      <td>{{ invoice.id }}</td>
+      <td>{{ invoice.year }}</td>
+      <td>{{ invoice.month * 2 - 1 }} ~ {{ invoice.month * 2 }}</td>
+      <td>{{ invoice.number }}</td>
+      <td>{{ invoice.note }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p>Maybe buy something and then add the invoice you get later.</p>
+{% endif %}
 {% endblock %}
