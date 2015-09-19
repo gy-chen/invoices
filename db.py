@@ -156,6 +156,11 @@ class App(Base):
                     invoice.prize_id = prize.id
                     break
             session.add(invoice)
+        # deal with the invoices that are too old
+        min_year, min_month = session.query(Prize.year, Prize.month).order_by(Prize.year, Prize.month).first()
+        if min_year is not None:
+            assert min_month is not None
+            session.query(Invoice).filter(and_(Invoice.year <= min_year, Invoice.month < min_month)).update({'is_matched': False})
         session.commit()
 
     def get_matched_invoices(self):
