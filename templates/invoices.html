@@ -9,6 +9,7 @@
       <th>Year</th>
       <th>Month</th>
       <th>Number</th>
+      <th>Matched Prize?</th>
       <th>Note</th>
       <th>Actions</th>
     </tr>
@@ -20,6 +21,7 @@
       <td>{{ invoice.year }}</td>
       <td>{{ invoice.month * 2 - 1 }} ~ {{ invoice.month * 2 }}</td>
       <td>{{ invoice.number }}</td>
+      <td>{{ invoice.is_matched }}</td>
       <td>{{ invoice.note }}</td>
       <td>
 	<form action="invoice_delete/{{ invoice.id }}" method="POST">

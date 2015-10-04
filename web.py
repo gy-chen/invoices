@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for
-import db
+import db, prizesparser
+
 app = Flask(__name__)
 # some constants
 # error codes for invoices
@@ -96,6 +97,30 @@ def invoice_delete(invoice_number):
     db.session.commit()
     back_url = request.referrer if request.referrer else '/'
     return redirect(back_url)
+
+@app.route('/invoices_match', methods=['POST'])
+def invoices_match():
+    app = db.App.get_instance()
+    app.match_prizes()
+    return redirect(url_for('index'))
+
+@app.route('/prizes')
+def prizes():
+    app = db.App.get_instance()
+    data = {}
+    data['prizes_update_date'] = app.prizes_last_modified_date
+    prizesgroup = [] # [list of same date prizes, another list, ...]
+    for prize_date in db.session.query(db.Prize.year, db.Prize.month).group_by(db.Prize.year, db.Prize.month).all():
+        prize_year, prize_month = prize_date
+        prizesgroup.append(db.session.query(db.Prize).filter(db.Prize.year == prize_year, db.Prize.month == prize_month).order_by(db.Prize.type_).all())
+    data['prizesgroup'] = prizesgroup
+    return render_template('prizes.html', **data)
+
+@app.route('/prizes_update', methods=['POST'])
+def prizes_update():
+    app = db.App.get_instance()
+    app.update_prizes()
+    return redirect(url_for('prizes'))
 
 if __name__ == '__main__':
     app.debug = True

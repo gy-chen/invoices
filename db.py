@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import locale
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Boolean, Integer, String, DateTime, ForeignKey, UniqueConstraint
@@ -9,13 +10,14 @@ from prizesgetter import PrizesGetter
 from prizesparser import PrizesParser
 
 __ALL__ = ['Invoice', 'Prize']
+locale.setlocale(locale.LC_NUMERIC, '')
 # TODO put configures in a seperate file.
 engine = create_engine('sqlite:///invoices.db', echo=False) # use echo to turn the debug information on or off.
 Base = declarative_base()
 Session = sessionmaker(bind=engine) # or Session.configure(bind=engine)
 session = Session()
 # create db using
-# Base.metadata.create_all(engine)
+Base.metadata.create_all(engine)
 # or...
 # Invoice.__table__.create(engine)
 # Prize.__table__.create(engine)
@@ -56,6 +58,30 @@ class Prize(Base):
     __table_args__ = (
         UniqueConstraint('year', 'month', 'number', 'type'),
         )
+
+    TYPE_JACKPOT = 1
+    TYPE_SPECIAL = 2
+    TYPE_FIRST = 3
+    TYPE_SECOND = 4
+    TYPE_THIRD = 5
+    TYPE_FOURTH = 6
+    TYPE_FIFTH = 7
+    TYPE_SIXTH = 8
+    TYPE_ENCORE_SIXTH = 9
+    
+    _TYPE_NAME_MAPPINGS = {
+        1: '特別獎',
+        2: '特獎',
+        3: '頭獎',
+        4: '二獎',
+        5: '三獎',
+        6: '四獎',
+        7: '五獎',
+        8: '六獎',
+        9: '增開六獎'
+    }
+
+    
     id = Column(Integer, primary_key=True)
     # the date is same as Invoice's
     year = Column(Integer)
@@ -64,6 +90,29 @@ class Prize(Base):
     number = Column(String)
     # prize's type
     type_ = Column('type', Integer)
+    # prize's prize
+    prize = Column('prize', Integer)
+
+    def get_type_name(self):
+        """Get the name of the prize type
+
+        () -> str
+        """
+        return self._TYPE_NAME_MAPPINGS[self.type_]
+
+    def get_formatted_prize(self):
+        """Get the formatted prize
+
+        () -> str
+        """
+        return 'NT$' + locale.format('%.f', self.prize, True)
+
+    def get_formatted_month(self):
+        """Get the formatted month instead of a integer
+
+        () -> str
+        """
+        return "{0} ~ {1}".format(self.month * 2 - 1, self.month * 2)
 
     def __repr__(self):
         parameters = {
@@ -71,9 +120,10 @@ class Prize(Base):
             'year': self.year,
             'month': self.month,
             'number': self.number,
-            'type_': self.type_
+            'type_': self.type_,
+            'prize': self.prize
             }
-        return self.__class__.__name__ + '(year={year}, month={month}, number={number}, type_={type_}, id={id})'.format(**parameters)
+        return self.__class__.__name__ + '(year={year}, month={month}, number={number}, type_={type_}, id={id}, prize={prize})'.format(**parameters)
 
 
 class App(Base):
@@ -112,7 +162,8 @@ class App(Base):
                 'year': current_year,
                 'month': current_month,
                 'number': current_prize.get_number(),
-                'type_': current_prize.get_type()
+                'type_': current_prize.get_type(),
+                'prize': current_prize.get_prize()
                 }
             if not session.query(Prize).filter_by(**conditions).first():
                 new_prize = Prize(**conditions)
@@ -126,7 +177,8 @@ class App(Base):
                 'year': previous_year,
                 'month': previous_month,
                 'number': previous_prize.get_number(),
-                'type_': previous_prize.get_type()
+                'type_': previous_prize.get_type(),
+                'prize': previous_prize.get_prize()
                 }
             if not session.query(Prize).filter_by(**conditions).first():
                 new_prize = Prize(**conditions)

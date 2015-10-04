@@ -27,7 +27,7 @@
 {% else %}
 <p>No luck today.</p>
 {% endif %}
-<h2>Keep These Invoices and Wait</h2>
+<h2>Keep These Invoices and Wait <form action="invoices_match" method="POST"><button class="btn btn-default" type="submit">Match Now</button></form></h2>
 {% if non_matched_invoices.count() %}
 <table class="table table-striped table-hover">
   <thead>
