@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, g
 import db, prizesparser
 
 app = Flask(__name__)
@@ -8,13 +8,16 @@ NOT_VALID_YEAR = 1
 NOT_VALID_MONTH = 2
 NOT_VALID_NUMBER = 4
 
+@app.before_request
+def before_request():
+    g.app = db.App.get_instance()
+
 @app.route('/')
 def index():
-    app = db.App.get_instance()
     view_data = {
-        'matched_invoices': app.get_matched_invoices(),
-        'no_matched_invoices': app.get_no_matched_invoices(),
-        'non_matched_invoices': app.get_non_matched_invoices()
+        'matched_invoices': g.app.get_matched_invoices(),
+        'no_matched_invoices': g.app.get_no_matched_invoices(),
+        'non_matched_invoices': g.app.get_non_matched_invoices()
         }
     # display matched, no-matched and non-matched invoices
     return render_template('index.html',
@@ -100,15 +103,13 @@ def invoice_delete(invoice_number):
 
 @app.route('/invoices_match', methods=['POST'])
 def invoices_match():
-    app = db.App.get_instance()
-    app.match_prizes()
+    g.app.match_prizes()
     return redirect(url_for('index'))
 
 @app.route('/prizes')
 def prizes():
-    app = db.App.get_instance()
     data = {}
-    data['prizes_update_date'] = app.prizes_last_modified_date
+    data['prizes_update_date'] = g.app.prizes_last_modified_date
     prizesgroup = [] # [list of same date prizes, another list, ...]
     for prize_date in db.session.query(db.Prize.year, db.Prize.month).group_by(db.Prize.year, db.Prize.month).all():
         prize_year, prize_month = prize_date
@@ -118,8 +119,7 @@ def prizes():
 
 @app.route('/prizes_update', methods=['POST'])
 def prizes_update():
-    app = db.App.get_instance()
-    app.update_prizes()
+    g.app.update_prizes()
     return redirect(url_for('prizes'))
 
 if __name__ == '__main__':
