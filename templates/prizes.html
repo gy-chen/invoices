@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Prizes</h2>
+<p>Last update date: {{ prizes_update_date }}<form method="POST" action="prizes_update"><button class="btn btn-default" type="submit">Update</button></form></p>
+{% for prizes in prizesgroup %}
+<h3>{{ prizes[0].year }} / {{ prizes[0].get_formatted_month() }}</h3>
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Number</th>
+      <th>Prize</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for prize in prizes %}
+    <tr>
+      <td>{{ prize.get_type_name() }}</td>
+      <td>{{ prize.number }}</td>
+      <td>{{ prize.get_formatted_prize() }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endfor %}
+{% endblock %}
