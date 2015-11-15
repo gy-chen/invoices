@@ -1,4 +1,6 @@
 - Implement pagination
+- Seperate SQLAlemy code in web.py
+- Use flask.flash() to display temporary message instead of current mechanism
 [x] 20151004 - Implement a web view to displaying prizes
 [x] 20151004 - Implement a mechanics for updating prizes
 [x] 20150919 - Deal with the very old invoices
