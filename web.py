@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for, g
-import db, prizesparser
+import db, prizesparser, pagination
 
 app = Flask(__name__)
 # some constants
@@ -14,10 +14,27 @@ def before_request():
 
 @app.route('/')
 def index():
+    # read pagination parameters
+    non_matched_per_rows = request.args.get('non_matched_per_rows', pagination.Pagination.DEFAULT_PER_ROWS)
+    non_matched_current_page = request.args.get('non_matched_page', 1)
+    # sanitize pagination paramters
+    try:
+        non_matched_per_rows = int(non_matched_per_rows)
+        non_matched_per_rows = pagination.Pagination.DEFAULT_PER_ROWS if non_matched_per_rows <= 0 else non_matched_per_rows
+    except:
+        non_matched_per_rows = pagination.Pagination.DEFAULT_PER_ROWS
+    try:
+        non_matched_current_page = int(non_matched_current_page)
+        non_matched_current_page = 1 if non_matched_current_page < 1 else non_matched_current_page
+    except:
+        non_matched_current_page = 1
+    # set pagination
+    non_matched_invoices_query = g.app.get_non_matched_invoices()
+    p = pagination.Pagination(non_matched_invoices_query.count(), non_matched_per_rows, non_matched_current_page)
     view_data = {
-        'matched_invoices': g.app.get_matched_invoices(),
-        'no_matched_invoices': g.app.get_no_matched_invoices(),
-        'non_matched_invoices': g.app.get_non_matched_invoices()
+        'matched_invoices': g.app.get_matched_invoices().all(),
+        'non_matched_invoices': non_matched_invoices_query[p.get_from_rows():p.get_to_rows() + 1],
+        'pagination': p
         }
     # display matched, no-matched and non-matched invoices
     return render_template('index.html',
@@ -25,10 +42,29 @@ def index():
 
 @app.route('/invoices')
 def invoices():
-    # show all invoices
-    invoices = db.session.query(db.Invoice)
+    # read pagination parameters
+    per_rows = request.args.get('per_rows', pagination.Pagination.DEFAULT_PER_ROWS)
+    current_page = request.args.get('page', 1)
+    # sanitize pagination parameters
+    try:
+        per_rows = int(per_rows)
+        per_rows = pagination.Pagination.DEFAULT_PER_ROWS if per_rows <= 0 else per_rows
+    except:
+        per_rows = pagination.Pagination.DEFAULT_PER_ROWS
+    try:
+        current_page = int(current_page)
+        current_page = 1 if current_page < 1 else current_page
+    except:
+        current_page = 1
+    # set pagination
+    invoices_query = g.app.get_invoices()
+    invoices_count = invoices_query.count()
+    p = pagination.Pagination(invoices_count, per_rows, current_page)
+    # show invoices
+    invoices = invoices_query[p.get_from_rows():p.get_to_rows() + 1]
     return render_template('invoices.html',
-                           invoices=invoices)
+                           invoices=invoices,
+                           pagination=p)
     
 
 @app.route('/invoice_add', methods=['GET'])

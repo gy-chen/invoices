@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
 <h2>Matched Invoices</h2>
-{% if matched_invoices.count() %}
+{% if matched_invoices|count %}
 <table class="table table-striped table-hover">
   <thead>
     <tr>
@@ -28,7 +28,7 @@
 <p>No luck today.</p>
 {% endif %}
 <h2>Keep These Invoices and Wait <form action="invoices_match" method="POST"><button class="btn btn-default" type="submit">Match Now</button></form></h2>
-{% if non_matched_invoices.count() %}
+{% if non_matched_invoices|count %}
 <table class="table table-striped table-hover">
   <thead>
     <tr>
@@ -51,6 +51,23 @@
     {% endfor %}
   </tbody>
 </table>
+<!-- pagination -->
+<div class="pagination">
+  {% if pagination.get_current_page() != 1 %}
+  <a href="?non_matched_page={{ pagination.get_current_page() - 1 }}&non_matched_per_rows={{ pagination.get_per_rows() }}">previous</a>
+  {% endif %}
+  {% for page in range(pagination.get_pagination_from_page(), pagination.get_pagination_to_page() + 1) %}
+  {% if page == pagination.get_current_page() %}
+  <span class="current_page">{{ page }}</span>
+  {% else %}
+  <a href="?non_matched_page={{ page }}&non_matched_per_rows={{ pagination.get_per_rows() }}">{{ page }}</a>
+  {% endif %}
+  {% endfor %}
+  {% if pagination.get_current_page() != pagination.get_total_pages() %}
+  <a href="?non_matched_page={{ pagination.get_current_page() + 1 }}&non_matched_per_rows={{ pagination.get_per_rows() }}">next</a>
+  {% endif %}
+</div>
+<!-- end of pagination -->
 {% else %}
 <p>Maybe buy something and then add the invoice you get later.</p>
 {% endif %}
