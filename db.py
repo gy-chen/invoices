@@ -239,3 +239,10 @@ class App(Base):
         () -> query
         """
         return session.query(Invoice).filter_by(is_matched=None).order_by(Invoice.year, Invoice.month)
+
+    def get_invoices(self):
+        """Get all the recorded invoices
+
+        () -> query
+        """
+        return session.query(Invoice)

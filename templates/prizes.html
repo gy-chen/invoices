@@ -23,4 +23,19 @@
   </tbody>
 </table>
 {% endfor %}
+<div class="pagination">
+  {% if pagination.get_current_page() > 1 %}
+  <a href="?page={{ pagination.get_current_page() - 1 }}&per_rows={{ pagination.get_per_rows() }}">Previous</a>
+  {% endif %}
+  {% for page in range(pagination.get_pagination_from_page(), pagination.get_pagination_to_page() + 1) %}
+  {% if page == pagination.get_current_page() %}
+  <span class="current_page">{{ page }}</span>
+  {% else %}
+  <a href="?page={{ page }}&per_rows={{ pagination.get_per_rows() }}">{{ page }}</a>
+  {% endif %}
+  {% endfor%}
+  {% if pagination.get_current_page() != pagination.get_total_pages() %}
+  <a href="?page={{ pagination.get_current_page() + 1 }}&per_rows={{ pagination.get_per_rows() }}">Next</a>
+  {% endif %}
+</div>
 {% endblock %}

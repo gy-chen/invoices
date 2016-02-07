@@ -147,10 +147,30 @@ def prizes():
     data = {}
     data['prizes_update_date'] = g.app.prizes_last_modified_date
     prizesgroup = [] # [list of same date prizes, another list, ...]
-    for prize_date in db.session.query(db.Prize.year, db.Prize.month).group_by(db.Prize.year, db.Prize.month).all():
+    for prize_date in db.session.query(db.Prize.year, db.Prize.month).group_by(db.Prize.year, db.Prize.month).order_by(db.Prize.year.desc(), db.Prize.month.desc()).all():
         prize_year, prize_month = prize_date
         prizesgroup.append(db.session.query(db.Prize).filter(db.Prize.year == prize_year, db.Prize.month == prize_month).order_by(db.Prize.type_).all())
-    data['prizesgroup'] = prizesgroup
+    # deal with pagination
+    # read pagination parameters
+    PRIZES_DEFAULT_PER_ROWS = 1 # default per rows for displaying prizes
+    per_rows = request.args.get('per_rows', PRIZES_DEFAULT_PER_ROWS)
+    current_page = request.args.get('page', 1)
+    # sanitize pagination parameters
+    try:
+        per_rows = int(per_rows)
+        per_rows = PRIZES_DEFAULT_PER_ROWS if per_rows <= 0 else per_rows
+    except:
+        per_rows = PRIZES_DEFAULT_PER_ROWS
+    try:
+        current_page = int(current_page)
+        current_page = 1 if current_page < 1 else current_page
+    except:
+        current_page = 1
+    # set pagination
+    prizes_count = len(prizesgroup)
+    p = pagination.Pagination(prizes_count, per_rows, current_page)
+    data['pagination'] = p
+    data['prizesgroup'] = prizesgroup[p.get_from_rows():p.get_to_rows() + 1]
     return render_template('prizes.html', **data)
 
 @app.route('/prizes_update', methods=['POST'])
