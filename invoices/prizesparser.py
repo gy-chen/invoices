@@ -9,7 +9,7 @@ class PrizesParser:
     # search for year and months of the prizes page
     _pattern_date = re.compile(r'(\d{3})年(\d{2})-(\d{2})月')
     # pattern for searching prize numbers of the prizes page
-    _pattern_prizes = re.compile('(\\d{8}).*?(\\d{8}).*?(\\d{8})、(\\d{8})、(\\d{8}).*?(\\d{3})、(\\d{3})、(\\d{3})', re.DOTALL)
+    _pattern_prizes = re.compile('(\\d{8}).*?(\\d{8}).*?(\\d{8})、(\\d{8})、(\\d{8}).*?(\\d{3})、?(\\d{3})?、?(\\d{3})?', re.DOTALL)
 
     def __init__(self, page_content):
         self._soup = BeautifulSoup(page_content, 'html.parser')
@@ -21,7 +21,7 @@ class PrizesParser:
         # the div of previous prizes information
         find_area2 = self._soup.find_all(attrs={'id': 'area2'})
         if len(find_area2) < 1:
-            raise RuntimeError('Cannot find current prizes information. (is <div id="area2"> in the page content?)')
+            raise RuntimeError('Cannot find previous prizes information. (is <div id="area2"> in the page content?)')
         self._area2 = find_area2[0]
 
     def get_current_prizes_year(self):
@@ -110,7 +110,7 @@ class PrizesParser:
             number_sixth = number_first[5:]
             prizes.append(Prize(Prize.TYPE_SIXTH, number_sixth))
         numbers_encore_sixth = numbers[5:]
-        prizes.extend([Prize(Prize.TYPE_ENCORE_SIXTH, number_encore_sixth) for number_encore_sixth in numbers_encore_sixth])
+        prizes.extend([Prize(Prize.TYPE_ENCORE_SIXTH, number_encore_sixth) for number_encore_sixth in numbers_encore_sixth if number_encore_sixth is not None])
         return prizes
 
 class Prize:

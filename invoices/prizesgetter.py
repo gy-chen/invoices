@@ -43,7 +43,7 @@ class PrizesGetter:
             response = self._response
         else:
             response = urllib.request.urlopen(self._URL)
-        page_bytes = response.readall()
+        page_bytes = response.read()
         page_content = page_bytes.decode('utf-8')
         return page_content
 
