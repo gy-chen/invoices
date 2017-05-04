@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h3>Invoices</h3>
+<a href="/invoices/add" class="btn btn-success btn-sm">
+  <i class="glyphicon glyphicon-plus"></i>
+  Add Invoice
+</a>
+
+{% if invoices %}
+
+<table class="table table-striped table-bordered">
+  <tr>
+    <th>Year</th>
+    <th>Month</th>
+    <th>Number</th>
+    <th>Note</th>
+    <th>Is Matched</th>
+    <th>Operators</th>
+  </tr>
+  {% for invoice in invoices %}
+  <tr>
+    <td>
+      {{ invoice.year }}
+    </td>
+    <td>
+      {{ invoice.month | readable_month }}
+    </td>
+    <td>
+      {{ invoice.number }}
+    </td>
+    <td>
+      {{ invoice.note }}
+    </td>
+    <td>
+      {{ invoice.matched_prize_id | readable_matched_prize_id }}
+    </td>
+    <td>
+      <a href="/invoices/{{invoice.key.id}}" class="btn btn-success btn-sm">
+        <i class="glyphicon glyphicon-eye-open"></i>
+        View
+      </a>
+    </td>
+  </tr>
+  {% endfor %}
+</table>
+{% else %}
+<p>No Invoices found</p>
+{% endif %}
+
+{% if next_page_token %}
+<nav>
+  <ul class="pager">
+    <li><a href="?page_token={{next_page_token}}">More</a></li>
+  </ul>
+</nav>
+{% endif %}
+
+{% endblock %}

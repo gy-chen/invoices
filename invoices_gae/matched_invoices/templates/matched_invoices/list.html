@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h3>Matched Invoices</h3>
+
+{% if matched_invoices %}
+
+<table class="table table-striped table-bordered">
+  <tr>
+    <th>Year</th>
+    <th>Month</th>
+    <th>Number</th>
+    <th>Note</th>
+    <th>Prize</th>
+  </tr>
+  {% for invoice in matched_invoices %}
+  <tr>
+    <td>
+      {{ invoice.year }}
+    </td>
+    <td>
+      {{ invoice.month | readable_month }}
+    </td>
+    <td>
+      {{ invoice.number }}
+    </td>
+    <td>
+      {{ invoice.note }}
+    </td>
+    <td>
+      {{ invoice.matched_prize_id }}
+    </td>
+  </tr>
+  {% endfor %}
+</table>
+{% else %}
+<p>No matched invoices found. Buy more stuff and wait.</p>
+{% endif %}
+
+{% if next_page_token %}
+<nav>
+  <ul class="pager">
+    <li><a href="?page_token={{next_page_token}}">More</a></li>
+  </ul>
+</nav>
+{% endif %}
+
+{% endblock %}

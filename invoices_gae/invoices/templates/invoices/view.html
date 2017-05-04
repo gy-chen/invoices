@@ -1,0 +1,39 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+
+<h3>Inovice</h3>
+
+<div class="btn-group">
+  <a href="/invoices/{{invoice.key.id}}/edit" class="btn btn-primary btn-sm">
+    <i class="glyphicon glyphicon-edit"></i>
+    Edit invoice
+  </a>
+  <a href="/invoices/{{invoice.key.id}}/delete" class="btn btn-danger btn-sm">
+    <i class="glyphicon glyphicon-trash"></i>
+    Delete invoice
+  </a>
+</div>
+
+<div class="media">
+  <div class="media-left">
+    <img class="invoice-image" src="http://placekitten.com/g/128/192">
+  </div>
+  <div class="media-body">
+    <div>
+      Year: {{ invoice.year }}
+    </div>
+    <div>
+      Month: {{ invoice.month }}
+    </div>
+    <div>
+      {{ invoice.number }}
+    </div>
+    <div>
+      {{ invoice.note }}
+    </div>
+  </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h3>Prizes</h3>
+
+{% if prizes %}
+
+{% for year, month, prizes in prizes|group_by_date %}
+<h4>{{ year }}, {{ month | readable_month }}</h4>
+<table class="table table-striped table-bordered">
+  <tr>
+    <th>
+      Type
+    </th>
+    <th>
+      Prize
+    </th>
+    <th>
+      Number
+    </th>
+  </tr>
+  {% for prize in prizes %}
+  <tr>
+    <td>
+      {{ prize.type | readable_type }}
+    </td>
+    <td>
+      {{ "{:,.0f} TWD".format(prize.type | readable_prize) }}
+    </td>
+    <td>
+      {{ prize.number }}
+    </td>
+  </tr>
+  {% endfor %}
+</table>
+{% endfor %}
+
+{% else %}
+<p>Please wait for prizes being fetched.</p>
+{% endif %}
+
+{% if next_page_token %}
+<nav>
+  <ul class="pager">
+    <li><a href="?page_token={{next_page_token}}">More</a></li>
+  </ul>
+</nav>
+{% endif %}
+
+{% endblock %}

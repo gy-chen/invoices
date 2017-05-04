@@ -1,0 +1,37 @@
+indexes:
+
+- kind: "Invoice"
+  properties:
+  - name: "year"
+    direction: desc
+  - name: "month"
+    direction: desc
+  - name: "number"
+
+- kind: Invoice
+  properties:
+  - name: user_id
+  - name: matched_prize_id
+  - name: year
+    direction: desc
+  - name: month
+    direction: desc
+  - name: number
+
+- kind: Invoice
+  properties:
+  - name: matched_prize_id
+  - name: year
+    direction: desc
+  - name: month
+    direction: desc
+  - name: number
+
+- kind: "Prize"
+  properties:
+  - name: "year"
+    direction: desc
+  - name: "month"
+    direction: desc
+  - name: "type"
+
