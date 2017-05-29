@@ -1,5 +1,6 @@
 import logging
-from flask import current_app, Flask, redirect, url_for
+from flask import current_app, Flask, redirect, url_for, session
+from flask.ext.session import Session
 
 def create_app(config, debug=False, testing=False, config_overrides=None):
     app = Flask(__name__)
@@ -14,6 +15,9 @@ def create_app(config, debug=False, testing=False, config_overrides=None):
     # Configure logging
     if not app.testing:
         logging.basicConfig(level=logging.INFO)
+
+    # Configure Flask-Session
+    Session(app)
 
     from . import auth
     auth.register_blueprint(app)
