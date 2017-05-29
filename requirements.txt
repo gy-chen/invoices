@@ -1,6 +1,8 @@
-Flask==0.11.1
-oauth2client==4.0.0
-google-cloud==0.22.0
-six==1.10.0
+Flask
+oauth2client
+google-cloud
+six
 bs4
 html5lib
+PyJWT
+Flask-Session

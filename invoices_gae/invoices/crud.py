@@ -34,7 +34,7 @@ def add():
             invoice = model.Invoice.create(invoice_data)
         except model.InvalidInvoiceException as e:
             errors = e.args
-            return render_template('form.html', action='Add', invoice=data, errors=errors)
+            return render_template('invoices/form.html', action='Add', invoice=data, errors=errors)
 
         return redirect(url_for('.add', message=helper.MESSAGE_SUCCESSFUL))
 
