@@ -2,6 +2,7 @@
 import jwt
 import httplib2
 import json
+import oauth2client.client
 from flask import session
 
 
@@ -27,8 +28,18 @@ class AuthManager:
         """
         return session.get(self.SESSION_KEY_PROFILE, None)
 
-    def get_login_user_by_jwt(self, jwt):
-        credentials = jwt.decode(encoded, key=JWT_SECRET, algorithms=['HS256'])[JWT_PARAM_KEY_CREDENTIALS]
+    def get_login_user_by_jwt(self, jwt_):
+        """Get current login user by jwt token.
+
+        This function will use credentials that stored in jwt to fetch profile
+        of login user.
+        Return None if user is not login.
+        """
+        try:
+            credentials_s = jwt.decode(jwt_, key=self.JWT_SECRET, algorithms=['HS256'])[self.JWT_PARAM_KEY_CREDENTIALS]
+        except jwt.exceptions.DecodeError:
+            return None
+        credentials = oauth2client.client.Credentials.new_from_json(credentials_s)
         return self._fetch_google_profile(credentials)
 
     def login_callback(self, credentials):
