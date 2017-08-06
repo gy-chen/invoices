@@ -238,7 +238,7 @@ class InvoiceValidator:
         """
         if InvoiceColumn.YEAR not in data:
             raise InvalidYearException('Please input year')
-        validator.check_year(data[InvoiceColumn.YEAR])
+        validator.check_year(data[InvoiceColumn.YEAR], InvalidYearException)
 
     @classmethod
     def check_month(cls, data):
@@ -255,7 +255,7 @@ class InvoiceValidator:
         """
         if InvoiceColumn.MONTH not in data:
             raise InvalidMonthException('Plase input month')
-        validator.check_month(data[InvoiceColumn.MONTH])
+        validator.check_month(data[InvoiceColumn.MONTH], InvalidMonthException)
 
     @classmethod
     def check_number(cls, data):

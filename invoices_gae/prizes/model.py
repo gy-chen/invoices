@@ -188,13 +188,13 @@ class PrizeValidator:
     def check_year(cls, data):
         if PrizeColumn.YEAR not in data:
             raise InvalidYearException('Plase input year')
-        validator.check_year(data[PrizeColumn.YEAR])
+        validator.check_year(data[PrizeColumn.YEAR], InvalidYearException)
 
     @classmethod
     def check_month(cls, data):
         if PrizeColumn.MONTH not in data:
             raise InvalidMonthException('Plase input month')
-        validator.check_month(data[PrizeColumn.MONTH])
+        validator.check_month(data[PrizeColumn.MONTH], InvalidMonthException)
 
     @classmethod
     def check_type(cls, data):

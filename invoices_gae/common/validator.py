@@ -8,9 +8,9 @@ def check_year(year, exception=ValueError):
     """
     year = str(year)
     if not year.isdigit():
-        raise InvalidYearException('Year is not valid: please input digits.')
+        raise exception('Year is not valid: please input digits.')
     if len(year) >= 4:
-        raise InvalidYearException('Year is not valid: plase use Taiwan year.')
+        raise exception('Year is not valid: plase use Taiwan year.')
 
 def check_month(month, exception=ValueError):
     """檢查月份
