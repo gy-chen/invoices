@@ -176,6 +176,22 @@ class InvoiceModel:
         return auth_manager.get_login_user()['id']
 
 
+class InvoiceApiModel(InvoiceModel):
+
+    _login_user = {}
+
+    @classmethod
+    def validate_login_jwt(cls, jwt):
+        auth_manager = get_auth_manager_instance()
+        login_user = auth_manager.get_login_user_by_jwt(jwt)
+        cls._login_user = login_user
+        return login_user.get('id', None)
+
+    @classmethod
+    def get_login_user_id(cls):
+        return cls._login_user.get('id', None)
+
+
 class InvoiceValidator:
     """Validator for Invoice
 
