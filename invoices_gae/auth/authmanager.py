@@ -19,8 +19,6 @@ class AuthManager:
 
         return None if user is not login.
         """
-        print(session.keys())
-        print(session.get(self.SESSION_KEY_PROFILE))
         return session.get(self.SESSION_KEY_PROFILE, None)
 
     def get_login_user_by_jwt(self, jwt_):
