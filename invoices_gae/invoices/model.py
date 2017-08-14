@@ -2,7 +2,7 @@
 import six
 from flask import current_app
 from google.cloud import datastore
-from ..auth import get_auth_manager_instance
+from .. import auth
 from ..common import validator
 
 # use app.request_with_context to test this function
@@ -172,10 +172,12 @@ class InvoiceModel:
 
     @classmethod
     def get_login_user_id(cls):
-        auth_manager = get_auth_manager_instance()
-        return auth_manager.get_login_user()['id']
+        return auth.auth_manager.get_login_user()['id']
 
 
+# XXX sington object is shared by whole application
+# maybe this will cause problem. Use class instance
+# to avoid sharad this class to multiple user.
 class InvoiceApiModel(InvoiceModel):
 
     _login_user = {}
@@ -184,8 +186,8 @@ class InvoiceApiModel(InvoiceModel):
     def validate_login_jwt(cls, jwt):
         auth_manager = get_auth_manager_instance()
         login_user = auth_manager.get_login_user_by_jwt(jwt)
-        cls._login_user = login_user
-        return login_user.get('id', None)
+        cls._login_user = login_user or {}
+        return cls._login_user.get('id', None)
 
     @classmethod
     def get_login_user_id(cls):

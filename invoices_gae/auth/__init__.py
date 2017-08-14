@@ -6,17 +6,9 @@ from .authmanager import AuthManager
 
 DEFAULT_JWT_RETURN_URL = 'gychen_invoices://login_jwt'
 
+auth_manager = AuthManager()
 oauth2 = UserOAuth2()
-
-def get_auth_manager_instance(oauth2=None):
-    instance = getattr(get_auth_manager_instance, '_instance', None)
-    if instance:
-        return instance
-    if oauth2 is None:
-        raise ValueError("Plase provide oauth2 argument.")
-    setattr(get_auth_manager_instance, '_instance', AuthManager(oauth2))
-    return get_auth_manager_instance()
-
+oauth2.authorize_callback = auth_manager.login_callback
 
 def register_blueprint(app, url_prefix=""):
     """Register auth functions to the app.
@@ -25,7 +17,8 @@ def register_blueprint(app, url_prefix=""):
     oauth2.init_app(
         app,
         scopes=['email', 'profile'])
-    auth_manager = get_auth_manager_instance(oauth2)
+    # XXX workaround for init_app overwriting authorize_callback problem
+    oauth2.authorize_callback = auth_manager.login_callback
 
     auth_blueprint = Blueprint('auth', __name__)
 

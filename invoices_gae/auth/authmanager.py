@@ -6,26 +6,21 @@ import oauth2client.client
 from flask import session
 
 
+# XXX maybe use this class as singleton, not as a class that can
+# be instance. Put dependency to oauth2 to other place.
 class AuthManager:
     JWT_SECRET = b'p\xbb+\xcfU\x06\xaf\x8e\xb6P60\x14\x88t(W\xfb:L\x82+\x0e\xa1\xc2\x11g`\xdf\xb3\xc0q'
     JWT_PARAM_KEY_CREDENTIALS = 'payload'
     SESSION_KEY_JWT = 'login_jwt'
     SESSION_KEY_PROFILE = 'profile'
 
-    def __init__(self, oauth2):
-        """init
-
-        oauth2 is an instance of oauth2client.contrib.flask_util.UserOAuth2
-        """
-        if oauth2:
-            oauth2.authorize_callback = self.login_callback
-        self.oauth2 = oauth2
-
     def get_login_user(self):
         """Get current login user
 
         return None if user is not login.
         """
+        print(session.keys())
+        print(session.get(self.SESSION_KEY_PROFILE))
         return session.get(self.SESSION_KEY_PROFILE, None)
 
     def get_login_user_by_jwt(self, jwt_):
@@ -57,7 +52,6 @@ class AuthManager:
         # function works.
         session[self.SESSION_KEY_JWT] = encoded
         session[self.SESSION_KEY_PROFILE] = profile
-        return True
 
     def _fetch_google_profile(self, credentials):
         """Fetch Google Plus Profile by Google API.
@@ -78,7 +72,5 @@ class AuthManager:
         return session.get(self.SESSION_KEY_JWT, None)
 
     def logout(self):
-        if self.oauth2:
-            self.oauth2.storage.delete()
         if self.SESSION_KEY_PROFILE in session:
             del session[self.SESSION_KEY_PROFILE]

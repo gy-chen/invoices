@@ -1,7 +1,7 @@
 #coding: utf-8`
 from flask import Blueprint, request, render_template, redirect, url_for, current_app, Response
 from . import model, helper
-from ..auth import get_auth_manager_instance, oauth2
+from ..auth import oauth2
 
 crud = Blueprint('prize_crud', __name__, template_folder='templates')
 
