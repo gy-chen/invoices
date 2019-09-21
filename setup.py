@@ -10,7 +10,10 @@ with open('invoices/__init__.py', 'r') as f:
     else:
         version = '0.0.1'
 
-REQUIRES = []
+REQUIRES = [
+    'pyzbar',
+    'sqlalchemy'
+]
 
 setup(
     name='invoices',
