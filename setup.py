@@ -12,7 +12,9 @@ with open('invoices/__init__.py', 'r') as f:
 
 REQUIRES = [
     'pyzbar',
-    'sqlalchemy'
+    'sqlalchemy',
+    'flask',
+    'requests_oauthlib'
 ]
 
 setup(
