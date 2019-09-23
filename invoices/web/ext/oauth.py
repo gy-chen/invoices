@@ -1,4 +1,4 @@
-from flask import current_app, sesion, request
+from flask import current_app, session, request
 from requests_oauthlib import OAuth2Session
 
 
@@ -18,23 +18,29 @@ class OAuth:
         app.config.setdefault("OAUTH_AUTHORIZATION_BASE_URL", None)
         app.config.setdefault("OAUTH_TOKEN_URL", None)
         app.config.setdefault("OAUTH_USER_PROFILE_URL", None)
+        app.config.setdefault("OAUTH_REDIRECT_URI", None)
+        app.config.setdefault("OAUTH_SCOPE", "openid email")
 
     def get_authorization_url(self):
-        session = OAuth2Session(app.config["OAUTH_CLIENT_ID"])
-        authorization_url, state = session.authorization_url(
-            app.config["OAUTH_AUTHORIZATION_BASE_URL"]
+        sess = OAuth2Session(
+            self.app.config["OAUTH_CLIENT_ID"],
+            redirect_uri=self.app.config["OAUTH_REDIRECT_URI"],
+            scope=self.app.config["OAUTH_SCOPE"],
+        )
+        authorization_url, state = sess.authorization_url(
+            self.app.config["OAUTH_AUTHORIZATION_BASE_URL"]
         )
         session["OAUTH_STATE"] = state
         return authorization_url
 
     def fetch_user(self):
-        session = OAuth2Session(
-            app.config["OAUTH_CLIENT_ID"], state=session["OAUTH_STATE"]
+        sess = OAuth2Session(
+            self.app.config["OAUTH_CLIENT_ID"], state=session["OAUTH_STATE"]
         )
-        token = session.fetch_token(
-            app.config["OAUTH_TOKEN_URL"],
-            client_secret=app.config["OAUTH_CLIENT_SECRET"],
+        token = sess.fetch_token(
+            self.app.config["OAUTH_TOKEN_URL"],
+            client_secret=self.app.config["OAUTH_CLIENT_SECRET"],
             authorization_response=request.url,
         )
-        user = session.get(app.config["OAUTH_USER_PROFILE_URL"]).json()
+        user = sess.get(app.config["OAUTH_USER_PROFILE_URL"]).json()
         return user
