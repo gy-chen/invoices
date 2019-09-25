@@ -1,3 +1,5 @@
+import base64
+import json
 from flask import current_app, session, request
 from requests_oauthlib import OAuth2Session
 
@@ -17,7 +19,6 @@ class OAuth:
         app.config.setdefault("OAUTH_CLIENT_SECRET", None)
         app.config.setdefault("OAUTH_AUTHORIZATION_BASE_URL", None)
         app.config.setdefault("OAUTH_TOKEN_URL", None)
-        app.config.setdefault("OAUTH_USER_PROFILE_URL", None)
         app.config.setdefault("OAUTH_REDIRECT_URI", None)
         app.config.setdefault("OAUTH_SCOPE", "openid email")
 
@@ -35,12 +36,21 @@ class OAuth:
 
     def fetch_user(self):
         sess = OAuth2Session(
-            self.app.config["OAUTH_CLIENT_ID"], state=session["OAUTH_STATE"]
+            self.app.config["OAUTH_CLIENT_ID"],
+            state=session["OAUTH_STATE"],
+            redirect_uri=self.app.config["OAUTH_REDIRECT_URI"],
         )
         token = sess.fetch_token(
             self.app.config["OAUTH_TOKEN_URL"],
             client_secret=self.app.config["OAUTH_CLIENT_SECRET"],
             authorization_response=request.url,
         )
-        user = sess.get(app.config["OAUTH_USER_PROFILE_URL"]).json()
-        return user
+        id_token = token["id_token"]
+        return self._decode_user_from_id_token(id_token)
+
+    def _decode_user_from_id_token(self, id_token):
+        _, payload_raw, _ = id_token.split(".")
+        missing_padding = len(payload_raw) % 4
+        payload_raw_decoded = base64.b64decode(payload_raw + "=" * missing_padding)
+        payload = json.loads(payload_raw_decoded)
+        return payload
