@@ -1,7 +1,12 @@
-from flask import Blueprint, redirect, jsonify
-from invoices.web import oauth
+import jwt
+from flask import Blueprint, redirect, jsonify, current_app, request, g
+from werkzeug.local import LocalProxy
+from invoices.web import oauth, user_model
+from invoices.model import User
 
 bp = Blueprint("login", __name__)
+
+current_user = LocalProxy(get_current_user)
 
 
 def login_user(user):
@@ -15,7 +20,9 @@ def login_user(user):
     Returns:
         str: jwt token
     """
-    pass
+    secret = current_app.config["LOGIN_JWT_SECRET"]
+    token = jwt.encode({"sub": user.sub}, secret, algorithm="HS256")
+    return token.decode()
 
 
 def get_user_from_request():
@@ -27,15 +34,38 @@ def get_user_from_request():
     Returns:
         user or None
     """
-    pass
+    token = _get_token_from_request()
+    if not token:
+        return None
+    try:
+        token_data = jwt.decode(
+            token, current_app.config["LOGIN_JWT_SECRET"], algorithm="HS256"
+        )
+        user = _load_user(token_data["sub"])
+        return user
+    except jwt.InvalidTokenError:
+        return None
 
 
-def load_user(sub):
-    pass
+def _get_token_from_request():
+    auth_header = request.headers.get("Authorization", None)
+    if not auth_header:
+        return None
+    try:
+        _, token = auth_header.split()
+        return token
+    except ValueError:
+        return None
+
+
+def _load_user(sub):
+    return user_model.get_user(sub)
 
 
 def get_current_user():
-    pass
+    if "current_user" not in g:
+        g.current_user = get_user_from_request()
+    return g.current_user
 
 
 @bp.route("/login")
@@ -60,6 +90,8 @@ def login_callback():
     4. generate JWT token for the user
     5. return JWT token
     """
-    user = oauth.fetch_user()
+    profile = oauth.fetch_user()
+    user = User(profile["sub"], profile["email"])
+    user_model.register_user(user)
     token = login_user(user)
     return jsonify(token=token)
