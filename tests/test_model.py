@@ -1,4 +1,5 @@
 from invoices.model import InvoiceModel, Invoice, InvoiceMonthEnum
+from invoices.model import PrizeModel, Prize, PrizeMonthEnum, PrizeTypeEnum
 
 
 def test_invoice_crud(session):
@@ -27,3 +28,22 @@ def test_invoice_crud(session):
     session.commit()
 
     assert not invoiceModel.get_invoices()
+
+
+def test_prize_crud(session):
+    prize_model = PrizeModel(session)
+
+    prize = Prize(PrizeTypeEnum.SIXTH_AWARD, 108, PrizeMonthEnum.MONTH_9_10, "818", 200)
+
+    prize_model.add_prize(prize)
+
+    saved_prizes = prize_model.get_prizes()
+    assert len(saved_prizes) == 1
+
+    saved_prize = saved_prizes[0]
+
+    assert saved_prize == prize
+
+    prize_model.delete_prize(PrizeTypeEnum.SIXTH_AWARD, 108, PrizeMonthEnum.MONTH_9_10)
+
+    assert len(prize_model.get_prizes()) == 0
