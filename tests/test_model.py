@@ -1,5 +1,6 @@
 from invoices.model import InvoiceModel, Invoice, InvoiceMonthEnum
 from invoices.model import PrizeModel, Prize, PrizeMonthEnum, PrizeTypeEnum
+from invoices.model import InvoiceMatchModel, InvoiceMatch
 
 
 def test_invoice_crud(session):
@@ -47,3 +48,32 @@ def test_prize_crud(session):
     prize_model.delete_prize(PrizeTypeEnum.SIXTH_AWARD, 108, PrizeMonthEnum.MONTH_9_10)
 
     assert len(prize_model.get_prizes()) == 0
+
+
+def test_invoice_match_crud(session):
+    invoice_model = InvoiceModel(session)
+    prize_model = PrizeModel(session)
+    invoice_match_model = InvoiceMatchModel(session)
+
+    invoice_model.add_invoice(
+        Invoice(None, 108, InvoiceMonthEnum.MONTH_9_10, "12345678")
+    )
+    prize_model.add_prize(
+        Prize(PrizeTypeEnum.SIXTH_AWARD, 108, PrizeMonthEnum.MONTH_9_10, "818", 200)
+    )
+    session.commit()
+
+    saved_invoice = invoice_model.get_invoices()[0]
+    saved_prize = prize_model.get_prizes()[0]
+
+    invoice_match = InvoiceMatch(
+        saved_invoice.id, saved_prize.type, saved_prize.year, saved_prize.month, False
+    )
+    invoice_match_model.add_invoice_match(invoice_match)
+    session.commit()
+
+    saved_invoice_matches = invoice_match_model.get_invoice_matches()
+    assert len(saved_invoice_matches) == 1
+
+    saved_invoice_match = saved_invoice_matches[0]
+    assert saved_invoice_match == invoice_match

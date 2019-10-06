@@ -37,9 +37,9 @@ class PrizeTypeEnum(enum.Enum):
 
 
 Invoice = collections.namedtuple("Invoice", "id year month number")
-Prize = collections.namedtuple("Prize", "type_ year month number prize")
+Prize = collections.namedtuple("Prize", "type year month number prize")
 InvoiceMatch = collections.namedtuple(
-    "InvoiceMatch", "invoice_id type_ year month prize is_matched"
+    "InvoiceMatch", "invoice_id type year month is_matched"
 )
 User = collections.namedtuple("User", "sub email")
 
@@ -132,8 +132,8 @@ class PrizeModel:
 class _InvoiceMatch(_Base):
     __tablename__ = "invoicematches"
 
-    invoice_id = Column(Enum(PrizeTypeEnum), ForeignKey("invoices.id"), primary_key=True)
-    type = Column(Integer)
+    invoice_id = Column(Integer, ForeignKey("invoices.id"), primary_key=True)
+    type = Column(Enum(PrizeTypeEnum))
     year = Column(Integer)
     month = Column(Enum(PrizeMonthEnum))
     is_matched = Column(Boolean)
@@ -159,15 +159,12 @@ class InvoiceMatchModel:
     def __init__(self, session):
         self._session = session
 
-    def add_match_invoice(self, invoice_match):
+    def add_invoice_match(self, invoice_match):
         invoice_match_model = _InvoiceMatch(*invoice_match)
         self._session.add(invoice_match_model)
 
-    def get_matched_invoices(self):
-        return [
-            InvoiceMatch(*im)
-            for im in self._session.query(_InvoiceMatch).join(_Invoice).all()
-        ]
+    def get_invoice_matches(self):
+        return [InvoiceMatch(*im) for im in self._session.query(_InvoiceMatch).all()]
 
 
 class UserModel:
