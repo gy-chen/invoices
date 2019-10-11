@@ -1,12 +1,11 @@
+import functools
 import jwt
-from flask import Blueprint, redirect, jsonify, current_app, request, g
+from flask import Blueprint, redirect, jsonify, current_app, request, g, abort
 from werkzeug.local import LocalProxy
-from invoices.web import oauth, user_model
+from invoices.web import oauth, db, user_model
 from invoices.model import User
 
 bp = Blueprint("login", __name__)
-
-current_user = LocalProxy(get_current_user)
 
 
 def login_user(user):
@@ -42,8 +41,13 @@ def get_user_from_request():
             token, current_app.config["LOGIN_JWT_SECRET"], algorithm="HS256"
         )
         user = _load_user(token_data["sub"])
+        if user is None:
+            current_app.logger.warn(
+                "jwt token is valid, but user is not found: %s", token_data["sub"]
+            )
         return user
-    except jwt.InvalidTokenError:
+    except jwt.InvalidTokenError as e:
+        current_app.logger.info("failed to login: %s", e)
         return None
 
 
@@ -66,6 +70,20 @@ def get_current_user():
     if "current_user" not in g:
         g.current_user = get_user_from_request()
     return g.current_user
+
+
+current_user = LocalProxy(get_current_user)
+
+
+def required_login(f):
+    @functools.wraps(f)
+    def wrapper(*args, **kargs):
+        current_user = get_current_user()
+        if current_user is None:
+            abort(403)
+        return f(*args, **kargs)
+
+    return wrapper
 
 
 @bp.route("/login")
@@ -94,4 +112,5 @@ def login_callback():
     user = User(profile["sub"], profile["email"])
     user_model.register_user(user)
     token = login_user(user)
+    db.session.commit()
     return jsonify(token=token)

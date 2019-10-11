@@ -1,9 +1,11 @@
-from flask import Flask
+from flask import Flask, jsonify
+from flask_sqlalchemy import SQLAlchemy
 from invoices.web.ext.oauth import OAuth
+from invoices.model import Base, UserModel
 
 oauth = OAuth()
-# TODO setup sqlalchemy and model class
-user_model = None
+db = SQLAlchemy(model_class=Base)
+user_model = UserModel(db.session)
 
 
 def create_app(config):
@@ -12,6 +14,7 @@ def create_app(config):
     app = Flask(__name__)
     app.config.from_object(config)
 
+    db.init_app(app)
     oauth.init_app(app)
 
     app.register_blueprint(bp_login)

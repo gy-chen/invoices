@@ -42,11 +42,12 @@ InvoiceMatch = collections.namedtuple(
     "InvoiceMatch", "invoice_id type year month is_matched"
 )
 User = collections.namedtuple("User", "sub email")
+UserInvoice = collections.namedtuple("Invoice", "id year month number user")
 
-_Base = declarative_base()
+Base = declarative_base()
 
 
-class _Invoice(_Base):
+class _Invoice(Base):
     __tablename__ = "invoices"
 
     id = Column(Integer, primary_key=True)
@@ -91,7 +92,7 @@ class InvoiceModel:
         return [Invoice(*invoice) for invoice in self._session.query(_Invoice).all()]
 
 
-class _Prize(_Base):
+class _Prize(Base):
     __tablename__ = "prizes"
 
     type = Column(Enum(PrizeTypeEnum), primary_key=True)
@@ -129,7 +130,7 @@ class PrizeModel:
         return [Prize(*p) for p in self._session.query(_Prize).all()]
 
 
-class _InvoiceMatch(_Base):
+class _InvoiceMatch(Base):
     __tablename__ = "invoicematches"
 
     invoice_id = Column(Integer, ForeignKey("invoices.id"), primary_key=True)
@@ -167,7 +168,7 @@ class InvoiceMatchModel:
         return [InvoiceMatch(*im) for im in self._session.query(_InvoiceMatch).all()]
 
 
-class _User(_Base):
+class _User(Base):
     __tablename__ = "users"
 
     sub = Column(String, primary_key=True)
@@ -194,3 +195,13 @@ class UserModel:
         if not user:
             return None
         return User(*user)
+
+
+class UserInvoiceModel:
+    def add_user_invoice(self, invoice_id, user_sub):
+        # TODO
+        pass
+
+    def get_user_invoices(self, user_sub):
+        # TODO
+        pass
