@@ -167,9 +167,30 @@ class InvoiceMatchModel:
         return [InvoiceMatch(*im) for im in self._session.query(_InvoiceMatch).all()]
 
 
+class _User(_Base):
+    __tablename__ = "users"
+
+    sub = Column(String, primary_key=True)
+    email = Column(String)
+
+    def __init__(self, sub, email):
+        self.sub = sub
+        self.email = email
+
+    def __iter__(self):
+        yield from (self.sub, self.email)
+
+
 class UserModel:
+    def __init__(self, session):
+        self._session = session
+
     def register_user(self, user):
-        pass
+        user_model = _User(*user)
+        self._session.add(user_model)
 
     def get_user(self, sub):
-        pass
+        user = self._session.query(_User).get(sub)
+        if not user:
+            return None
+        return User(*user)

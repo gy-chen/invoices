@@ -1,6 +1,7 @@
 from invoices.model import InvoiceModel, Invoice, InvoiceMonthEnum
 from invoices.model import PrizeModel, Prize, PrizeMonthEnum, PrizeTypeEnum
 from invoices.model import InvoiceMatchModel, InvoiceMatch
+from invoices.model import UserModel, User
 
 
 def test_invoice_crud(session):
@@ -77,3 +78,14 @@ def test_invoice_match_crud(session):
 
     saved_invoice_match = saved_invoice_matches[0]
     assert saved_invoice_match == invoice_match
+
+
+def test_user(session):
+    user_model = UserModel(session)
+
+    user = User("testsub", "example@example.org")
+
+    user_model.register_user(user)
+
+    saved_user = user_model.get_user("testsub")
+    assert saved_user == user
