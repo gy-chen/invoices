@@ -1,11 +1,13 @@
 from flask import Flask, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from invoices.web.ext.oauth import OAuth
-from invoices.model import Base, UserModel
+from invoices.model import Base, UserModel, InvoiceModel, UserInvoiceModel
 
 oauth = OAuth()
 db = SQLAlchemy(model_class=Base)
 user_model = UserModel(db.session)
+invoice_model = InvoiceModel(db.session)
+user_invoice_model = UserInvoiceModel(db.session)
 
 
 def create_app(config):

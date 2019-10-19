@@ -36,7 +36,7 @@ class PrizeTypeEnum(enum.Enum):
     SPECIAL_SIXTH_AWARD = 9
 
 
-Invoice = collections.namedtuple("Invoice", "id year month number")
+Invoice = collections.namedtuple("Invoice", "id year month number note")
 Prize = collections.namedtuple("Prize", "type year month number prize")
 InvoiceMatch = collections.namedtuple(
     "InvoiceMatch", "invoice_id type year month is_matched"
@@ -54,24 +54,27 @@ class _Invoice(Base):
     year = Column(Integer)
     month = Column(Enum(InvoiceMonthEnum))
     number = Column(String)
+    note = Column(String)
 
-    def __init__(self, id, year, month, number):
+    def __init__(self, id, year, month, number, note):
         self.id = id
         self.year = year
         self.month = month
         self.number = number
+        self.note = note
 
     def __iter__(self):
-        yield from (self.id, self.year, self.month, self.number)
+        yield from (self.id, self.year, self.month, self.number, self.note)
 
 
 class InvoiceModel:
     def __init__(self, session):
         self._session = session
 
-    def add_invoice(self, invoice):
-        invoice_model = _Invoice(*invoice)
+    def add_invoice(self, year, month, number, note):
+        invoice_model = _Invoice(None, year, month, number, note)
         self._session.add(invoice_model)
+        return invoice_model
 
     def update_invoice(self, invoice):
         invoice_model = self._session.query(_Invoice).get(invoice.id)
@@ -80,7 +83,9 @@ class InvoiceModel:
         invoice_model.year = invoice.year
         invoice_model.month = invoice.month
         invoice_model.number = invoice.number
+        invoice_model.note = invoice.note
         self._session.add(invoice_model)
+        return invoice_model
 
     def delete_invoice(self, id):
         invoice_model = self._session.query(_Invoice).get(id)
@@ -198,6 +203,9 @@ class UserModel:
 
 
 class UserInvoiceModel:
+    def __init__(self, session):
+        self._session = session
+
     def add_user_invoice(self, invoice_id, user_sub):
         # TODO
         pass

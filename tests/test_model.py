@@ -7,17 +7,18 @@ from invoices.model import UserModel, User
 def test_invoice_crud(session):
     invoiceModel = InvoiceModel(session)
 
-    invoice = Invoice(None, 108, InvoiceMonthEnum.MONTH_9_10, "12345678")
+    invoice = Invoice(None, 108, InvoiceMonthEnum.MONTH_9_10, "12345678", "note")
 
-    invoiceModel.add_invoice(invoice)
+    saved_invoice = invoiceModel.add_invoice(*invoice[1:])
     session.commit()
+    assert saved_invoice.id is not None
+    assert tuple(saved_invoice)[1:] == invoice[1:]
 
     saved_invoice = invoiceModel.get_invoices()[0]
-
-    assert saved_invoice[1:] == invoice[1:]
+    assert tuple(saved_invoice)[1:] == invoice[1:]
 
     update_invoice = Invoice(
-        saved_invoice.id, 107, InvoiceMonthEnum.MONTH_7_8, "87654321"
+        saved_invoice.id, 107, InvoiceMonthEnum.MONTH_7_8, "87654321", "updated note"
     )
 
     invoiceModel.update_invoice(update_invoice)
@@ -56,9 +57,7 @@ def test_invoice_match_crud(session):
     prize_model = PrizeModel(session)
     invoice_match_model = InvoiceMatchModel(session)
 
-    invoice_model.add_invoice(
-        Invoice(None, 108, InvoiceMonthEnum.MONTH_9_10, "12345678")
-    )
+    invoice_model.add_invoice(108, InvoiceMonthEnum.MONTH_9_10, "12345678", "note")
     prize_model.add_prize(
         Prize(PrizeTypeEnum.SIXTH_AWARD, 108, PrizeMonthEnum.MONTH_9_10, "818", 200)
     )
