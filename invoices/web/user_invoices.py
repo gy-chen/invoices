@@ -4,8 +4,8 @@ from wtforms import StringField, IntegerField
 from wtforms.validators import DataRequired, NumberRange, Length
 from werkzeug.datastructures import MultiDict
 from invoices.web.login import required_login, current_user
-from invoices.web import db, invoice_model, user_invoice_model
-from invoices.model import Invoice, InvoiceMonthEnum
+from invoices.web import db, invoice_model, user_invoice_model, user_invoice_match_model
+from invoices.model import Invoice, InvoiceMonthEnum, UserInvoiceMatch
 
 bp = Blueprint("user_invoices", __name__)
 
@@ -42,12 +42,13 @@ class AddInvoiceForm(FlaskForm):
 def add_invoice():
     add_invoice_form = AddInvoiceForm()
     if add_invoice_form.validate():
-        invoice = add_invoice_form.to_invoice()
-        saved_invoice = invoice_model.add_invoice(*invoice.to_add_invoice_args())
-        db.commit()
-        user_invoice_model.add_user_invoice(saved_invoice.id, current_user.sub)
-        db.commit()
-        return jsonify(invoice_id=saved_invoice.id)
+        invoice = add_invoice_form.to_add_invoice_args()
+        invoice_model.add_invoice(*invoice)
+        db.session.commit()
+        invoice_id = invoice_model.get_last_added_invoice_id()
+        user_invoice_model.add_user_invoice(current_user.sub, invoice_id)
+        db.session.commit()
+        return jsonify(invoice_id=invoice_id)
     abort(400)
 
 
@@ -80,7 +81,7 @@ def update_invoice(id):
             invoice_model.update_invoice(update_invoice)
         except ValueError:
             abort(400)
-        db.commit()
+        db.session.commit()
         return ("", 204)
     abort(400)
 
@@ -90,19 +91,70 @@ def update_invoice(id):
 def delete_invoice(id):
     try:
         invoice_model.delete_invoice(id)
+        db.session.commit()
     except ValueError:
         abort(400)
-    db.commit()
     return ("", 204)
+
+
+class GetInvoicesForm(FlaskForm):
+    offset = IntegerField("offset", validators=[NumberRange(min=0)], default=0)
+    per_page = IntegerField(
+        "per_page", validators=[NumberRange(min=0, max=40)], default=20
+    )
+
+
+def _invoice_to_output_dict(invoice):
+    return {
+        "id": invoice.id,
+        "year": invoice.year,
+        "month": invoice.month.value,
+        "number": invoice.number,
+        "note": invoice.note,
+    }
+
+
+def _user_invoice_to_output_dict(user_invoice):
+    return _invoice_to_output_dict(user_invoice.invoice)
 
 
 @bp.route("/invoices", methods=["GET"])
 @required_login
 def get_invoices():
-    pass
+    get_invoices_form = GetInvoicesForm()
+    if not get_invoices_form.validate():
+        abort(400)
+    user_invoices = user_invoice_model.get_user_invoices(
+        current_user.sub, get_invoices_form.offset.data, get_invoices_form.per_page.data
+    )
+    return jsonify(invoices=list(map(_user_invoice_to_output_dict, user_invoices)))
+
+
+class GetProcessedInvoicesForm(FlaskForm):
+    offset = IntegerField("offset", validators=[NumberRange(min=0)], default=0)
+    per_page = IntegerField(
+        "per_page", validators=[NumberRange(min=0, max=40)], default=20
+    )
+
+
+def _user_invoice_match_to_output_dict(user_invoice_match):
+    return {
+        "invoice": _invoice_to_output_dict(user_invoice_match.invoice),
+        "is_matched": user_invoice_match.invoice_match.is_matched,
+    }
 
 
 @bp.route("/invoices/processed")
 @required_login
 def get_processed_invoices():
-    pass
+    get_processed_invoices_form = GetProcessedInvoicesForm()
+    if not get_processed_invoices_form.validate():
+        abort(400)
+    user_invoice_matches = user_invoice_match_model.get_invoice_matches(
+        current_user.sub,
+        get_processed_invoices_form.offset,
+        get_processed_invoices_form.per_page,
+    )
+    return jsonify(
+        matches=list(map(_user_invoice_match_to_output_dict, user_invoice_matches))
+    )

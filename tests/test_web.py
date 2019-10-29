@@ -57,3 +57,37 @@ def test_update_invoice_form(app):
         "12345678",
         "note",
     )
+
+
+def test_invoice_crud(app, logged_in_user, client):
+    rv = client.post(
+        "/invoice",
+        data={"year": "108", "month": "5", "number": "12345678", "note": "test"},
+    )
+    assert rv.status_code == 200
+    data = rv.get_json()
+    assert data["invoice_id"] is not None
+
+    update_invoice_data = {
+        "year": "109",
+        "month": "6",
+        "number": "87654321",
+        "note": "update_test",
+    }
+    rv = client.put(f'/invoice/{data["invoice_id"]}', data=update_invoice_data)
+    assert rv.status_code == 204
+
+    rv = client.get("/invoices")
+    assert rv.status_code == 200
+    invoices = rv.get_json()["invoices"]
+    assert len(invoices) == 1
+    assert invoices[0] == {
+        "id": data["invoice_id"],
+        "year": 109,
+        "month": 6,
+        "number": "87654321",
+        "note": "update_test",
+    }
+
+    rv = client.delete(f'/invoice/{data["invoice_id"]}')
+    assert rv.status_code == 204
