@@ -14,7 +14,8 @@ REQUIRES = [
     'pyzbar',
     'sqlalchemy',
     'flask',
-    'requests_oauthlib'
+    'requests_oauthlib',
+    'scrapy'
 ]
 
 setup(
