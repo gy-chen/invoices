@@ -1,7 +1,6 @@
 import enum
 import re
 import scrapy
-from twisted.internet import defer
 
 
 class PrizeTypeEnum(enum.Enum):
@@ -83,7 +82,6 @@ class PrizeSpider(scrapy.Spider):
 
 class SpawnSubPrizesPipeline:
     def process_item(self, item, spider):
-        print('in pipeline', item)
         type = item.get("type")
         if type != PrizeTypeEnum.FIRST_AWARD:
             return item
