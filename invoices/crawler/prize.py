@@ -1,6 +1,7 @@
 import enum
 import re
 import scrapy
+from twisted.internet import defer
 
 
 class PrizeTypeEnum(enum.Enum):
@@ -78,3 +79,34 @@ class PrizeSpider(scrapy.Spider):
 
     def _parse_month_range(self, raw):
         return self._RAW_MONTH_RANGE_MAPPING[raw]
+
+
+class SpawnSubPrizesPipeline:
+    def process_item(self, item, spider):
+        print('in pipeline', item)
+        type = item.get("type")
+        if type != PrizeTypeEnum.FIRST_AWARD:
+            return item
+        subprizes = self._spawn(item)
+        self._add_items_to_pipeline(subprizes, spider)
+        return item
+
+    def _spawn(self, prize):
+        types = [
+            PrizeTypeEnum.SECOND_AWARD,
+            PrizeTypeEnum.THIRD_AWARD,
+            PrizeTypeEnum.FOURTH_AWARD,
+            PrizeTypeEnum.FIFTH_AWARD,
+            PrizeTypeEnum.SIXTH_AWARD,
+        ]
+        number = prize["number"]
+        for skip, type in enumerate(types):
+            yield PrizeItem(
+                type=type,
+                year=prize["year"],
+                month=prize["month"],
+                number=prize["number"][skip:],
+            )
+
+    def _add_items_to_pipeline(self, items, spider):
+        return spider.crawler.engine.scraper.handle_spider_output(items, None, None, spider)
