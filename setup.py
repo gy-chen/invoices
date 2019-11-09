@@ -14,6 +14,9 @@ REQUIRES = [
     'pyzbar',
     'sqlalchemy',
     'flask',
+    'flask_sqlalchemy',
+    'flask_wtf',
+    'jwt',
     'requests_oauthlib',
     'scrapy'
 ]

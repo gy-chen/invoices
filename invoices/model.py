@@ -1,40 +1,9 @@
 import collections
-import enum
 from sqlalchemy import Column, Integer, String, Boolean, Enum, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 from sqlalchemy.schema import ForeignKeyConstraint
-
-
-class InvoiceMonthEnum(enum.Enum):
-    MONTH_1_2 = 1
-    MONTH_3_4 = 2
-    MONTH_5_6 = 3
-    MONTH_7_8 = 4
-    MONTH_9_10 = 5
-    MONTH_11_12 = 6
-
-
-class PrizeMonthEnum(enum.Enum):
-    MONTH_1_2 = 1
-    MONTH_3_4 = 2
-    MONTH_5_6 = 3
-    MONTH_7_8 = 4
-    MONTH_9_10 = 5
-    MONTH_11_12 = 6
-
-
-class PrizeTypeEnum(enum.Enum):
-    SPECIAL_TOP_AWARD = 1
-    TOP_AWARD = 2
-    FIRST_AWARD = 3
-    SECOND_AWARD = 4
-    THIRD_AWARD = 5
-    FOURTH_AWARD = 6
-    FIFTH_AWARD = 7
-    SIXTH_AWARD = 8
-    SPECIAL_SIXTH_AWARD = 9
-
+from invoices.common import PrizeType, Month
 
 Invoice = collections.namedtuple("Invoice", "id year month number note")
 Prize = collections.namedtuple("Prize", "type year month number prize")
@@ -104,7 +73,7 @@ class _Invoice(Base):
 
     id = Column(Integer, primary_key=True)
     year = Column(Integer)
-    month = Column(Enum(InvoiceMonthEnum))
+    month = Column(Enum(Month))
     number = Column(String)
     note = Column(String)
 
@@ -122,9 +91,9 @@ class _Invoice(Base):
 class _Prize(Base):
     __tablename__ = "prizes"
 
-    type = Column(Enum(PrizeTypeEnum), primary_key=True)
+    type = Column(Enum(PrizeType), primary_key=True)
     year = Column(Integer, primary_key=True)
-    month = Column(Enum(PrizeMonthEnum), primary_key=True)
+    month = Column(Enum(Month), primary_key=True)
     number = Column(String)
     prize = Column(Integer)
 
@@ -143,9 +112,9 @@ class _InvoiceMatch(Base):
     __tablename__ = "invoicematches"
 
     invoice_id = Column(Integer, ForeignKey("invoices.id"), primary_key=True)
-    prize_type = Column(Enum(PrizeTypeEnum))
+    prize_type = Column(Enum(PrizeType))
     prize_year = Column(Integer)
-    prize_month = Column(Enum(PrizeMonthEnum))
+    prize_month = Column(Enum(Month))
 
     __table_args__ = (
         ForeignKeyConstraint(
@@ -318,4 +287,3 @@ class UserInvoiceMatchModel:
                 )
             )
         return result
-

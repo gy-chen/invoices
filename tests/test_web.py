@@ -1,7 +1,7 @@
 from werkzeug.datastructures import MultiDict
 from invoices.web.user_invoices import AddInvoiceForm
 from invoices.web.user_invoices import UpdateInvoiceForm
-from invoices.model import InvoiceMonthEnum
+from invoices.common import Month
 
 
 def test_add_invoice_form(app):
@@ -13,7 +13,7 @@ def test_add_invoice_form(app):
 
     assert normal_add_invoice_form.to_add_invoice_args() == (
         108,
-        InvoiceMonthEnum.MONTH_1_2,
+        Month.MONTH_1_2,
         "12345678",
         "note",
     )
@@ -53,7 +53,7 @@ def test_update_invoice_form(app):
     assert normal_update_form.to_update_invoice() == (
         1,
         108,
-        InvoiceMonthEnum.MONTH_1_2,
+        Month.MONTH_1_2,
         "12345678",
         "note",
     )

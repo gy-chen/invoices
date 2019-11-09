@@ -1,27 +1,7 @@
 import enum
 import re
 import scrapy
-
-
-class PrizeTypeEnum(enum.Enum):
-    SPECIAL_TOP_AWARD = 1
-    TOP_AWARD = 2
-    FIRST_AWARD = 3
-    SECOND_AWARD = 4
-    THIRD_AWARD = 5
-    FOURTH_AWARD = 6
-    FIFTH_AWARD = 7
-    SIXTH_AWARD = 8
-    SPECIAL_SIXTH_AWARD = 9
-
-
-class PrizeMonthEnum(enum.Enum):
-    MONTH_1_2 = 1
-    MONTH_3_4 = 2
-    MONTH_5_6 = 3
-    MONTH_7_8 = 4
-    MONTH_9_10 = 5
-    MONTH_11_12 = 6
+from invoices.common import PrizeType, Month
 
 
 class PrizeItem(scrapy.Item):
@@ -40,12 +20,12 @@ class PrizeSpider(scrapy.Spider):
     _PAT_SIXTH_PRIZES = re.compile(r"\b\d{3}\b")
 
     _RAW_MONTH_RANGE_MAPPING = {
-        "01-02": PrizeMonthEnum.MONTH_1_2,
-        "03-04": PrizeMonthEnum.MONTH_3_4,
-        "05-06": PrizeMonthEnum.MONTH_5_6,
-        "07-08": PrizeMonthEnum.MONTH_7_8,
-        "09-10": PrizeMonthEnum.MONTH_9_10,
-        "11-12": PrizeMonthEnum.MONTH_11_12,
+        "01-02": Month.MONTH_1_2,
+        "03-04": Month.MONTH_3_4,
+        "05-06": Month.MONTH_5_6,
+        "07-08": Month.MONTH_7_8,
+        "09-10": Month.MONTH_9_10,
+        "11-12": Month.MONTH_11_12,
     }
 
     def parse(self, response):
@@ -64,11 +44,11 @@ class PrizeSpider(scrapy.Spider):
         if len(normals) != 5:
             raise ValueError("unexpect invoice page format")
         normal_types = [
-            PrizeTypeEnum.SPECIAL_TOP_AWARD,
-            PrizeTypeEnum.TOP_AWARD,
-            PrizeTypeEnum.FIRST_AWARD,
-            PrizeTypeEnum.FIRST_AWARD,
-            PrizeTypeEnum.FIRST_AWARD,
+            PrizeType.SPECIAL_TOP_AWARD,
+            PrizeType.TOP_AWARD,
+            PrizeType.FIRST_AWARD,
+            PrizeType.FIRST_AWARD,
+            PrizeType.FIRST_AWARD,
         ]
         for number, type in zip(normals, normal_types):
             yield PrizeItem(year=year, month=month_range, type=type, number=number)
@@ -83,7 +63,7 @@ class PrizeSpider(scrapy.Spider):
 class SpawnSubPrizesPipeline:
     def process_item(self, item, spider):
         type = item.get("type")
-        if type != PrizeTypeEnum.FIRST_AWARD:
+        if type != PrizeType.FIRST_AWARD:
             return item
         subprizes = self._spawn(item)
         self._add_items_to_pipeline(subprizes, spider)
@@ -91,11 +71,11 @@ class SpawnSubPrizesPipeline:
 
     def _spawn(self, prize):
         types = [
-            PrizeTypeEnum.SECOND_AWARD,
-            PrizeTypeEnum.THIRD_AWARD,
-            PrizeTypeEnum.FOURTH_AWARD,
-            PrizeTypeEnum.FIFTH_AWARD,
-            PrizeTypeEnum.SIXTH_AWARD,
+            PrizeType.SECOND_AWARD,
+            PrizeType.THIRD_AWARD,
+            PrizeType.FOURTH_AWARD,
+            PrizeType.FIFTH_AWARD,
+            PrizeType.SIXTH_AWARD,
         ]
         number = prize["number"]
         for skip, type in enumerate(types):

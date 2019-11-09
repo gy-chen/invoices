@@ -5,19 +5,20 @@ from wtforms.validators import DataRequired, NumberRange, Length
 from werkzeug.datastructures import MultiDict
 from invoices.web.login import required_login, current_user
 from invoices.web import db, invoice_model, user_invoice_model, user_invoice_match_model
-from invoices.model import Invoice, InvoiceMonthEnum, UserInvoiceMatch
+from invoices.model import Invoice, UserInvoiceMatch
+from invoices.common import Month
 
 bp = Blueprint("user_invoices", __name__)
 
 
 def _month_to_enum(month):
     month_map = {
-        1: InvoiceMonthEnum.MONTH_1_2,
-        2: InvoiceMonthEnum.MONTH_3_4,
-        3: InvoiceMonthEnum.MONTH_5_6,
-        4: InvoiceMonthEnum.MONTH_7_8,
-        5: InvoiceMonthEnum.MONTH_9_10,
-        6: InvoiceMonthEnum.MONTH_11_12,
+        1: Month.MONTH_1_2,
+        2: Month.MONTH_3_4,
+        3: Month.MONTH_5_6,
+        4: Month.MONTH_7_8,
+        5: Month.MONTH_9_10,
+        6: Month.MONTH_11_12,
     }
     return month_map[month]
 

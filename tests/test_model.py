@@ -1,15 +1,16 @@
-from invoices.model import InvoiceModel, Invoice, InvoiceMonthEnum
-from invoices.model import PrizeModel, Prize, PrizeMonthEnum, PrizeTypeEnum
+from invoices.model import InvoiceModel, Invoice
+from invoices.model import PrizeModel, Prize, Month
 from invoices.model import InvoiceMatchModel, InvoiceMatch
 from invoices.model import UserModel, User
 from invoices.model import UserInvoiceModel, UserInvoice
 from invoices.model import UserInvoiceMatchModel, UserInvoiceMatch
+from invoices.common import Month, PrizeType
 
 
 def test_invoice_crud(session):
     invoice_model = InvoiceModel(session)
 
-    invoice = Invoice(None, 108, InvoiceMonthEnum.MONTH_9_10, "12345678", "note")
+    invoice = Invoice(None, 108, Month.MONTH_9_10, "12345678", "note")
 
     invoice_model.add_invoice(*invoice[1:])
     session.commit()
@@ -19,7 +20,7 @@ def test_invoice_crud(session):
     assert tuple(saved_invoice)[1:] == invoice[1:]
 
     update_invoice = Invoice(
-        saved_invoice.id, 107, InvoiceMonthEnum.MONTH_7_8, "87654321", "updated note"
+        saved_invoice.id, 107, Month.MONTH_7_8, "87654321", "updated note"
     )
 
     invoice_model.update_invoice(update_invoice)
@@ -38,17 +39,17 @@ def test_prize_crud(session):
     prize_model = PrizeModel(session)
 
     prize_model.add_prize(
-        PrizeTypeEnum.SIXTH_AWARD, 108, PrizeMonthEnum.MONTH_9_10, "818", 200
+        PrizeType.SIXTH_AWARD, 108, Month.MONTH_9_10, "818", 200
     )
 
     saved_prizes = prize_model.get_prizes()
     assert len(saved_prizes) == 1
 
-    prize = Prize(PrizeTypeEnum.SIXTH_AWARD, 108, PrizeMonthEnum.MONTH_9_10, "818", 200)
+    prize = Prize(PrizeType.SIXTH_AWARD, 108, Month.MONTH_9_10, "818", 200)
     saved_prize = saved_prizes[0]
     assert saved_prize == prize
 
-    prize_model.delete_prize(PrizeTypeEnum.SIXTH_AWARD, 108, PrizeMonthEnum.MONTH_9_10)
+    prize_model.delete_prize(PrizeType.SIXTH_AWARD, 108, Month.MONTH_9_10)
 
     assert len(prize_model.get_prizes()) == 0
 
@@ -58,9 +59,9 @@ def test_invoice_match_crud(session):
     prize_model = PrizeModel(session)
     invoice_match_model = InvoiceMatchModel(session)
 
-    invoice_model.add_invoice(108, InvoiceMonthEnum.MONTH_9_10, "12345678", "note")
+    invoice_model.add_invoice(108, Month.MONTH_9_10, "12345678", "note")
     prize_model.add_prize(
-        PrizeTypeEnum.SIXTH_AWARD, 108, PrizeMonthEnum.MONTH_9_10, "818", 200
+        PrizeType.SIXTH_AWARD, 108, Month.MONTH_9_10, "818", 200
     )
     session.commit()
 
@@ -96,7 +97,7 @@ def test_user_invoice(session):
     user_model = UserModel(session)
     user_invoice_model = UserInvoiceModel(session)
 
-    invoice_model.add_invoice(108, InvoiceMonthEnum.MONTH_9_10, "12345678", "test")
+    invoice_model.add_invoice(108, Month.MONTH_9_10, "12345678", "test")
     user = User("testsub", "example@example.org")
     user_model.register_user(user)
     session.commit()
@@ -119,18 +120,18 @@ def test_user_invoice_match(session):
     invoice_match_model = InvoiceMatchModel(session)
     user_invoice_match_model = UserInvoiceMatchModel(session)
 
-    invoice_model.add_invoice(108, InvoiceMonthEnum.MONTH_9_10, "12345678", "test")
+    invoice_model.add_invoice(108, Month.MONTH_9_10, "12345678", "test")
     user = User("testsub", "example@example.org")
     user_model.register_user(user)
     prize_model.add_prize(
-        PrizeTypeEnum.SIXTH_AWARD, 108, PrizeMonthEnum.MONTH_9_10, "818", 200
+        PrizeType.SIXTH_AWARD, 108, Month.MONTH_9_10, "818", 200
     )
     session.commit()
 
     invoice_id = invoice_model.get_last_added_invoice_id()
     user_invoice_model.add_user_invoice(user.sub, invoice_id)
     invoice_match_model.add_invoice_match(
-        invoice_id, PrizeTypeEnum.SIXTH_AWARD, 108, PrizeMonthEnum.MONTH_9_10
+        invoice_id, PrizeType.SIXTH_AWARD, 108, Month.MONTH_9_10
     )
     session.commit()
 
@@ -140,8 +141,8 @@ def test_user_invoice_match(session):
     user_invoice_match = user_invoice_matches[0]
     assert user_invoice_match.user == user
     assert user_invoice_match.invoice_match == InvoiceMatch(
-        Invoice(invoice_id, 108, InvoiceMonthEnum.MONTH_9_10, "12345678", "test"),
-        Prize(PrizeTypeEnum.SIXTH_AWARD, 108, PrizeMonthEnum.MONTH_9_10, "818", 200),
+        Invoice(invoice_id, 108, Month.MONTH_9_10, "12345678", "test"),
+        Prize(PrizeType.SIXTH_AWARD, 108, Month.MONTH_9_10, "818", 200),
         True,
     )
 
