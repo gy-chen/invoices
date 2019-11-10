@@ -68,6 +68,11 @@ def test_invoice_match_crud(session):
     saved_invoice = invoice_model.get_invoices()[0]
     saved_prize = prize_model.get_prizes()[0]
 
+    unprocess_invoices = invoice_match_model.get_unprocess_invoices()
+    assert len(unprocess_invoices) == 1
+    unprocess_invoice = unprocess_invoices[0]
+    assert unprocess_invoice == saved_invoice
+
     invoice_match = InvoiceMatch(saved_invoice, saved_prize, True)
     invoice_match_model.add_invoice_match(
         saved_invoice.id, saved_prize.type, saved_prize.year, saved_prize.month
@@ -79,6 +84,9 @@ def test_invoice_match_crud(session):
 
     saved_invoice_match = saved_invoice_matches[0]
     assert saved_invoice_match == invoice_match
+
+    unprocess_invoices = invoice_match_model.get_unprocess_invoices()
+    assert len(unprocess_invoices) == 0
 
 
 def test_user(session):

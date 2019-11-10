@@ -10,9 +10,7 @@ Prize = collections.namedtuple("Prize", "type year month number prize")
 InvoiceMatch = collections.namedtuple("InvoiceMatch", "invoice prize is_matched")
 User = collections.namedtuple("User", "sub email")
 UserInvoice = collections.namedtuple("UserInvoice", "user invoice")
-UserInvoiceMatch = collections.namedtuple(
-    "UserInvoiceMatch", "user invoice_match"
-)
+UserInvoiceMatch = collections.namedtuple("UserInvoiceMatch", "user invoice_match")
 
 Base = declarative_base()
 
@@ -230,6 +228,15 @@ class InvoiceMatchModel:
     def get_invoice_matches(self):
         invoice_match_models = self._session.query(_InvoiceMatch).all()
         return list(map(self._model_adapter.to_invoice_match, invoice_match_models))
+
+    def get_unprocess_invoices(self):
+        invoice_models = (
+            self._session.query(_Invoice)
+            .outerjoin(_InvoiceMatch, _Invoice.id == _InvoiceMatch.invoice_id)
+            .filter(_InvoiceMatch.invoice_id == None)
+            .all()
+        )
+        return list(map(self._model_adapter.to_invoice, invoice_models))
 
 
 class UserModel:
