@@ -225,6 +225,12 @@ class InvoiceMatchModel:
         )
         self._session.add(invoice_match_model)
 
+    def add_invoice_unmatch(self, invoice_id):
+        invoice_match_model = _InvoiceMatch(
+            invoice_id, None, None, None
+        )
+        self._session.add(invoice_match_model)
+
     def get_invoice_matches(self):
         invoice_match_models = self._session.query(_InvoiceMatch).all()
         return list(map(self._model_adapter.to_invoice_match, invoice_match_models))

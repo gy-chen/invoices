@@ -88,6 +88,16 @@ def test_invoice_match_crud(session):
     unprocess_invoices = invoice_match_model.get_unprocess_invoices()
     assert len(unprocess_invoices) == 0
 
+    invoice_model.add_invoice(108, Month.MONTH_9_10, "87654321", "note2")
+    session.commit()
+    unprocess_invoices = invoice_match_model.get_unprocess_invoices()
+    assert len(unprocess_invoices) == 1
+
+    last_invoice_id = invoice_model.get_last_added_invoice_id()
+    invoice_match_model.add_invoice_unmatch(last_invoice_id)
+    unprocess_invoices = invoice_match_model.get_unprocess_invoices()
+    assert len(unprocess_invoices) == 0
+
 
 def test_user(session):
     user_model = UserModel(session)
