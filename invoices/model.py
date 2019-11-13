@@ -28,12 +28,14 @@ class _ModelAdapter:
             invoice_match_model.prize_type
             and invoice_match_model.prize_year
             and invoice_match_model.prize_type
+            and invoice_match_model.prize_number
         ):
             prize_model = self._session.query(_Prize).get(
                 (
                     invoice_match_model.prize_type,
                     invoice_match_model.prize_year,
                     invoice_match_model.prize_month,
+                    invoice_match_model.prize_number,
                 )
             )
         return InvoiceMatch(
@@ -92,7 +94,7 @@ class _Prize(Base):
     type = Column(Enum(PrizeType), primary_key=True)
     year = Column(Integer, primary_key=True)
     month = Column(Enum(Month), primary_key=True)
-    number = Column(String)
+    number = Column(String, primary_key=True)
     prize = Column(Integer)
 
     def __init__(self, type, year, month, number, prize):
@@ -113,22 +115,30 @@ class _InvoiceMatch(Base):
     prize_type = Column(Enum(PrizeType))
     prize_year = Column(Integer)
     prize_month = Column(Enum(Month))
+    prize_number = Column(String)
 
     __table_args__ = (
         ForeignKeyConstraint(
-            ["prize_type", "prize_year", "prize_month"],
-            ["prizes.type", "prizes.year", "prizes.month"],
+            ["prize_type", "prize_year", "prize_month", "prize_number"],
+            ["prizes.type", "prizes.year", "prizes.month", "prizes.number"],
         ),
     )
 
-    def __init__(self, invoice_id, prize_type, prize_year, prize_month):
+    def __init__(self, invoice_id, prize_type, prize_year, prize_month, prize_number):
         self.invoice_id = invoice_id
         self.prize_type = prize_type
         self.prize_year = prize_year
         self.prize_month = prize_month
+        self.prize_number = prize_number
 
     def __iter__(self):
-        yield from (self.invoice_id, self.prize_type, self.prize_year, self.prize_month)
+        yield from (
+            self.invoice_id,
+            self.prize_type,
+            self.prize_year,
+            self.prize_month,
+            self.prize_number,
+        )
 
 
 class _User(Base):
@@ -203,8 +213,8 @@ class PrizeModel:
         prize_model = _Prize(type, year, month, number, prize)
         self._session.add(prize_model)
 
-    def delete_prize(self, type_, year, month):
-        prize_model = self._session.query(_Prize).get((type_, year, month))
+    def delete_prize(self, type_, year, month, number):
+        prize_model = self._session.query(_Prize).get((type_, year, month, number))
         if not prize_model:
             raise ValueError("prize is not exists")
         self._session.delete(prize_model)
@@ -219,16 +229,16 @@ class InvoiceMatchModel:
         self._session = session
         self._model_adapter = _ModelAdapter(session)
 
-    def add_invoice_match(self, invoice_id, prize_type, prize_year, prize_month):
+    def add_invoice_match(
+        self, invoice_id, prize_type, prize_year, prize_month, prize_number
+    ):
         invoice_match_model = _InvoiceMatch(
-            invoice_id, prize_type, prize_year, prize_month
+            invoice_id, prize_type, prize_year, prize_month, prize_number
         )
         self._session.add(invoice_match_model)
 
     def add_invoice_unmatch(self, invoice_id):
-        invoice_match_model = _InvoiceMatch(
-            invoice_id, None, None, None
-        )
+        invoice_match_model = _InvoiceMatch(invoice_id, None, None, None, None)
         self._session.add(invoice_match_model)
 
     def get_invoice_matches(self):

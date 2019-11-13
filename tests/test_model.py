@@ -38,9 +38,7 @@ def test_invoice_crud(session):
 def test_prize_crud(session):
     prize_model = PrizeModel(session)
 
-    prize_model.add_prize(
-        PrizeType.SIXTH_AWARD, 108, Month.MONTH_9_10, "818", 200
-    )
+    prize_model.add_prize(PrizeType.SIXTH_AWARD, 108, Month.MONTH_9_10, "818", 200)
 
     saved_prizes = prize_model.get_prizes()
     assert len(saved_prizes) == 1
@@ -49,7 +47,7 @@ def test_prize_crud(session):
     saved_prize = saved_prizes[0]
     assert saved_prize == prize
 
-    prize_model.delete_prize(PrizeType.SIXTH_AWARD, 108, Month.MONTH_9_10)
+    prize_model.delete_prize(PrizeType.SIXTH_AWARD, 108, Month.MONTH_9_10, "818")
 
     assert len(prize_model.get_prizes()) == 0
 
@@ -60,9 +58,7 @@ def test_invoice_match_crud(session):
     invoice_match_model = InvoiceMatchModel(session)
 
     invoice_model.add_invoice(108, Month.MONTH_9_10, "12345678", "note")
-    prize_model.add_prize(
-        PrizeType.SIXTH_AWARD, 108, Month.MONTH_9_10, "818", 200
-    )
+    prize_model.add_prize(PrizeType.SIXTH_AWARD, 108, Month.MONTH_9_10, "818", 200)
     session.commit()
 
     saved_invoice = invoice_model.get_invoices()[0]
@@ -75,7 +71,11 @@ def test_invoice_match_crud(session):
 
     invoice_match = InvoiceMatch(saved_invoice, saved_prize, True)
     invoice_match_model.add_invoice_match(
-        saved_invoice.id, saved_prize.type, saved_prize.year, saved_prize.month
+        saved_invoice.id,
+        saved_prize.type,
+        saved_prize.year,
+        saved_prize.month,
+        saved_prize.number,
     )
     session.commit()
 
@@ -141,15 +141,13 @@ def test_user_invoice_match(session):
     invoice_model.add_invoice(108, Month.MONTH_9_10, "12345678", "test")
     user = User("testsub", "example@example.org")
     user_model.register_user(user)
-    prize_model.add_prize(
-        PrizeType.SIXTH_AWARD, 108, Month.MONTH_9_10, "818", 200
-    )
+    prize_model.add_prize(PrizeType.SIXTH_AWARD, 108, Month.MONTH_9_10, "818", 200)
     session.commit()
 
     invoice_id = invoice_model.get_last_added_invoice_id()
     user_invoice_model.add_user_invoice(user.sub, invoice_id)
     invoice_match_model.add_invoice_match(
-        invoice_id, PrizeType.SIXTH_AWARD, 108, Month.MONTH_9_10
+        invoice_id, PrizeType.SIXTH_AWARD, 108, Month.MONTH_9_10, "818"
     )
     session.commit()
 
@@ -163,4 +161,3 @@ def test_user_invoice_match(session):
         Prize(PrizeType.SIXTH_AWARD, 108, Month.MONTH_9_10, "818", 200),
         True,
     )
-
