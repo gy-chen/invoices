@@ -18,7 +18,8 @@ REQUIRES = [
     'flask_wtf',
     'jwt',
     'requests_oauthlib',
-    'scrapy'
+    'scrapy',
+    'Flask-Migrate'
 ]
 
 setup(

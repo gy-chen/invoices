@@ -1,5 +1,6 @@
 from flask import Flask, jsonify
 from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
 from invoices.web.ext.oauth import OAuth
 from invoices.model import (
     Base,
@@ -11,6 +12,7 @@ from invoices.model import (
 
 oauth = OAuth()
 db = SQLAlchemy(model_class=Base)
+migrate = Migrate(db=db)
 user_model = UserModel(db.session)
 invoice_model = InvoiceModel(db.session)
 user_invoice_model = UserInvoiceModel(db.session)
@@ -25,6 +27,7 @@ def create_app(config):
     app.config.from_object(config)
 
     db.init_app(app)
+    migrate.init_app(app)
     oauth.init_app(app)
 
     app.register_blueprint(bp_login)
