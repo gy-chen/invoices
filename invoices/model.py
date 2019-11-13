@@ -107,7 +107,7 @@ class _Prize(Base):
 
 
 class _InvoiceMatch(Base):
-    __tablename__ = "invoicematches"
+    __tablename__ = "invoice_matches"
 
     invoice_id = Column(Integer, ForeignKey("invoices.id"), primary_key=True)
     prize_type = Column(Enum(PrizeType))
