@@ -21,6 +21,8 @@ REQUIRES = [
     "scrapy",
     "Flask-Migrate",
     "Pillow",
+    'uwsgi',
+    'gevent',
 ]
 
 setup(

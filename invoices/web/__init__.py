@@ -22,6 +22,7 @@ user_invoice_match_model = UserInvoiceMatchModel(db.session)
 def create_app(config):
     from invoices.web.login import bp as bp_login
     from invoices.web.user_invoices import bp as bp_user_invoices
+    from invoices.qrcode.bp import bp as bp_qrcode
 
     app = Flask(__name__)
     app.config.from_object(config)
@@ -32,6 +33,7 @@ def create_app(config):
 
     app.register_blueprint(bp_login)
     app.register_blueprint(bp_user_invoices)
+    app.register_blueprint(bp_qrcode, url_prefix="/qrcode")
 
     return app
 
