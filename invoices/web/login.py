@@ -94,7 +94,7 @@ def login():
     2. save state to session
     3. redirect to authorization url
     """
-    authorization_url = oauth.get_authorization_url()
+    authorization_url = oauth.get_authorization_url(request.args.get("callback_url"))
     return redirect(authorization_url)
 
 

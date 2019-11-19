@@ -22,10 +22,10 @@ class OAuth:
         app.config.setdefault("OAUTH_REDIRECT_URI", None)
         app.config.setdefault("OAUTH_SCOPE", "openid email")
 
-    def get_authorization_url(self):
+    def get_authorization_url(self, callback_url=None):
         sess = OAuth2Session(
             self.app.config["OAUTH_CLIENT_ID"],
-            redirect_uri=self.app.config["OAUTH_REDIRECT_URI"],
+            redirect_uri=callback_url or self.app.config["OAUTH_REDIRECT_URI"],
             scope=self.app.config["OAUTH_SCOPE"],
         )
         authorization_url, state = sess.authorization_url(
