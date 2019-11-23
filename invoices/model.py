@@ -262,7 +262,7 @@ class UserModel:
 
     def register_user(self, user):
         user_model = _User(*user)
-        self._session.add(user_model)
+        self._session.merge(user_model)
 
     def get_user(self, sub):
         user = self._session.query(_User).get(sub)
