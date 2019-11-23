@@ -16,7 +16,7 @@ REQUIRES = [
     "flask",
     "flask_sqlalchemy",
     "flask_wtf",
-    "jwt",
+    "pyjwt",
     "requests_oauthlib",
     "scrapy",
     "Flask-Migrate",
