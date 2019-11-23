@@ -14,3 +14,4 @@ LOGIN_JWT_SECRET = "your login jwt secret"
 
 SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"
 
+LOGIN_VALID_CALLBACK_URLS = ['http://127.0.0.1:5000']

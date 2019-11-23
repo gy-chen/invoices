@@ -1,7 +1,8 @@
 import functools
 import jwt
-from flask import Blueprint, redirect, jsonify, current_app, request, g, abort
+from flask import Blueprint, redirect, jsonify, current_app, request, g, abort, session
 from werkzeug.local import LocalProxy
+from werkzeug.urls import Href
 from invoices.web import oauth, db, user_model
 from invoices.model import User
 
@@ -85,6 +86,11 @@ def required_login(f):
 
     return wrapper
 
+def _is_valid_callback_urls(callback_url):
+    for valid_callback_url in current_app.config['LOGIN_VALID_CALLBACK_URLS']:
+        if callback_url.startswith(valid_callback_url):
+            return True
+    return False
 
 @bp.route("/login")
 def login():
@@ -94,7 +100,10 @@ def login():
     2. save state to session
     3. redirect to authorization url
     """
-    authorization_url = oauth.get_authorization_url(request.args.get("callback_url"))
+    authorization_url = oauth.get_authorization_url()
+    callback_url = request.args.get("callback_url")
+    if _is_valid_callback_urls(callback_url):
+        session["callback_url"] = callback_url
     return redirect(authorization_url)
 
 
@@ -113,4 +122,8 @@ def login_callback():
     user_model.register_user(user)
     token = login_user(user)
     db.session.commit()
+
+    callback_url = session.get("callback_url")
+    if callback_url:
+        return redirect(Href(callback_url)(token=token))
     return jsonify(token=token)
