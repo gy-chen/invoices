@@ -1,15 +1,16 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from invoices.model import PrizeModel, InvoiceMatchModel
-from invoices.model_prize_match import is_match, is_date_match
+from invoices.model import InvoiceMatchModel
+from invoices.prize.sqlalchemy_model import PrizeModel
+from invoices.prize.model import is_match, is_date_match
 
 
 class PrizeMatcher:
     """class for fetching and matching stored prizes and invoices
 
     Args:
-        prize_model (invoices.model.PrizeModel)
-        invoice_model (invoices.model.InvoiceModel)
+        prize_model (invoices.prize.model.PrizeModel)
+        invoice_model (invoices.invoice.model.InvoiceModel)
         invoice_match_model (invoices.model.InvoiceMatchModel)
     """
 

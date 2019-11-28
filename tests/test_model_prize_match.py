@@ -1,6 +1,7 @@
 from invoices.common import Month
-from invoices.model import Prize, Invoice
-from invoices.model_prize_match import is_match
+from invoices.prize.model import Prize
+from invoices.invoice.model import Invoice
+from invoices.prize.model import is_match
 
 
 def test_is_match():

@@ -1,4 +1,4 @@
-from invoices.prize_match import is_number_match
+from invoices.prize.model import is_number_match
 
 
 def test_number_match():

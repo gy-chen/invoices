@@ -54,3 +54,6 @@ class OAuth:
         payload_raw_decoded = base64.b64decode(payload_raw + "=" * missing_padding)
         payload = json.loads(payload_raw_decoded)
         return payload
+
+
+oauth_ext = OAuth()

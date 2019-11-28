@@ -2,8 +2,11 @@ import pytest
 from flask import g
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from invoices.model import Base, User
-from invoices.web import create_app, login, db, user_model
+from invoices.user.model import User
+from invoices.user.web.ext import user_model_ext
+from invoices.app import create_app
+from invoices.app import db
+from invoices.sqlalchemy import Base
 
 
 @pytest.fixture
@@ -36,7 +39,5 @@ def client(app):
 
 @pytest.fixture
 def logged_in_user(app):
-    user = User("test_sub", "test@example.org")
-    user_model.register_user(user)
-    db.session.commit()
+    user = user_model_ext.user_model.register_user("test_sub", "test@example.org")
     g.current_user = user

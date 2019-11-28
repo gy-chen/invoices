@@ -1,6 +1,6 @@
 from werkzeug.datastructures import MultiDict
-from invoices.web.user_invoices import AddInvoiceForm
-from invoices.web.user_invoices import UpdateInvoiceForm
+from invoices.user_invoice.web.form import AddInvoiceForm
+from invoices.user_invoice.web.form import UpdateInvoiceForm
 from invoices.common import Month
 
 
@@ -11,7 +11,7 @@ def test_add_invoice_form(app):
     normal_add_invoice_form = AddInvoiceForm(normal_data)
     assert normal_add_invoice_form.validate()
 
-    assert normal_add_invoice_form.to_add_invoice_args() == (
+    assert tuple(normal_add_invoice_form) == (
         108,
         Month.MONTH_1_2,
         "12345678",
@@ -50,7 +50,7 @@ def test_update_invoice_form(app):
     normal_update_form = UpdateInvoiceForm(normal_data)
     assert normal_update_form.validate()
 
-    assert normal_update_form.to_update_invoice() == (
+    assert tuple(normal_update_form) == (
         1,
         108,
         Month.MONTH_1_2,

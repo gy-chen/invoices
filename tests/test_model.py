@@ -1,9 +1,15 @@
-from invoices.model import InvoiceModel, Invoice
-from invoices.model import PrizeModel, Prize, Month
-from invoices.model import InvoiceMatchModel, InvoiceMatch
-from invoices.model import UserModel, User
-from invoices.model import UserInvoiceModel, UserInvoice
-from invoices.model import UserInvoiceMatchModel, UserInvoiceMatch
+from invoices.invoice.model import Invoice
+from invoices.invoice.sqlalchemy_model import InvoiceModel
+from invoices.prize.model import Prize
+from invoices.prize.sqlalchemy_model import PrizeModel
+from invoices.invoice_match.model import InvoiceMatch
+from invoices.invoice_match.sqlalchemy_model import InvoiceMatchModel
+from invoices.user.model import User
+from invoices.user.sqlalchemy_model import UserModel
+from invoices.user_invoice.model import UserInvoice
+from invoices.user_invoice.sqlalchemy_model import UserInvoiceModel
+from invoices.user_invoice_match.model import UserInvoiceMatch
+from invoices.user_invoice_match.sqlalchemy_model import UserInvoiceMatchModel
 from invoices.common import Month, PrizeType
 
 
